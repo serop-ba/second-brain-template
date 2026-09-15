@@ -67,9 +67,9 @@ Only after the interview. Fill in, in this order:
    success numbers, status `not started`, and 2–3 next steps each.
 3. **`CLAUDE.md`** — append anything from the working-rules question to the
    *Rules for how I work* section. Don't touch the rest.
-4. **`automations/config/channels.yaml`** — if they run a YouTube channel, fill
-   in the ID and any competitors. If they don't, say the YouTube scripts aren't
-   relevant and leave it. Don't guess an ID — ask, or leave blank with a note.
+4. **Automations** — `automations/` ships empty. Don't build anything now.
+   Note in the log which of their metrics could be pulled automatically and
+   which are manual, and mention it in the wrap-up as a later step.
 5. **`log.md`** — append `## [YYYY-MM-DD] init | Second brain initialized`
    and one paragraph on what was set up.
 

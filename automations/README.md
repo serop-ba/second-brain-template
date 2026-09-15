@@ -1,46 +1,55 @@
 # Automations
 
-Python scripts that pull external data (YouTube stats, finance ledger) for
-this second brain. They're run as part of the weekly loop described in
-`../CLAUDE.md` — but you can run them directly too.
+Empty on purpose. This is where scripts that pull your real numbers live —
+channel stats, revenue, ad spend, whatever your business actually runs on.
 
-Everything here is plain Python 3, one venv, no other runtimes.
+Once a script exists here, the weekly loop runs it and its output lands in
+`../dashboard.md`. Until then, everything else in the brain works fine without
+it — fill in `company.md` and `goals.md` first and come back to this.
 
-## Setup
+## Setup (one time)
+
+Needs Python 3.9+. Check with `python3 --version`; if that fails, install it
+from [python.org](https://www.python.org/downloads/) or `brew install python`
+on a Mac.
 
 ```bash
 cd automations
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env   # then fill in your API keys
+cp .env.example .env               # then put your API keys in .env
 ```
 
-`.env` and `.venv/` are gitignored — never commit real API keys.
+`.env` and `.venv/` are gitignored. Never commit real keys.
 
-## Layout
+## Adding one
 
-- `scripts/` — one script per data pull. Each prints a JSON result to stdout
-  and also writes a timestamped copy to `../Output/analytics/`.
-- `config/channels.yaml` — your channel + the competitor channels to track.
-- `config/finance_log.csv` — manual ledger you append rows to by hand; scripts
-  read it, they never write to it.
-- `../Output/analytics/` — raw JSON snapshots from each run, alongside video
-  ideas in `../Output/video-ideas/`. Scratch/cache, not the durable record —
-  the durable record is `../dashboard.md` (current numbers) and the weekly
-  entry in `../log.md` (what they meant). Safe to delete; scripts regenerate it.
+Just ask Claude: *"add an automation that pulls my Stripe revenue"* — it
+writes the script, adds the config, and updates this README. Or do it by hand:
+
+1. Copy `scripts/example.py` to `scripts/<name>.py`.
+2. Make it print one JSON object to stdout and save a timestamped copy to
+   `../Output/analytics/`. `example.py` already does both.
+3. Put anything configurable in `config/` — IDs, thresholds, account names —
+   and anything secret in `.env`.
+4. Add a row to the table below.
+5. Tell Claude it exists, so it gets run during the weekly loop.
+
+## The rules that matter
+
+- **Never fake a number.** If a key is missing or an API fails, print a clear
+  error and exit non-zero. A script that returns plausible-looking garbage is
+  worse than one that crashes.
+- **Read-only by default.** Scripts that pull data can run unattended.
+  Anything that *acts* on the outside world — posting, emailing, charging —
+  gets confirmed by a human every time, never scheduled silently.
+- **Output is scratch.** `../Output/analytics/*.json` is a cache, safe to
+  delete. The durable record is `../dashboard.md` (current numbers) and the
+  weekly entry in `../log.md` (what they meant).
 
 ## Scripts
 
-| Script | What it needs | What it does |
+| Script | Needs | Does |
 |---|---|---|
-| `youtube_channel_report.py` | `YOUTUBE_API_KEY`, your channel ID in `config/channels.yaml` | Pulls subscriber/view/video stats for your own channel(s) |
-| `youtube_competitor_scan.py` | `YOUTUBE_API_KEY`, competitor IDs in `config/channels.yaml` | Pulls the same stats for tracked competitors, diffs against the last snapshot in `../Output/analytics/` |
-| `finance_tracker.py` | nothing external — reads `config/finance_log.csv` | Computes trends/deltas per metric from your manually logged numbers |
-
-Market/competitor research (news, positioning, narrative) isn't a script —
-it's `WebSearch` + synthesis, filed as a note in `../notes/`. No API to wire
-up there.
-
-If `YOUTUBE_API_KEY` isn't set, the YouTube scripts print a clear error
-instead of silently returning fake data — fill in `.env` before running them.
+| _none yet_ | | |

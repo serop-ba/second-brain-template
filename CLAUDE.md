@@ -24,7 +24,7 @@ Seven pages and three folders. That's the whole system — resist adding more.
 | `inbox.md` | Frictionless capture. Emptied weekly. |
 | `notes/` | Flat folder of accumulated knowledge: people, competitors, sources, playbooks. No subfolders. |
 | `raw/` | Curated source documents. **Immutable** (one exception below). |
-| `automations/` | Python scripts that pull external data. See `automations/README.md`. |
+| `automations/` | Scripts that pull the business's real numbers. Empty until the user adds one — see `automations/README.md`. |
 | `.claude/skills/` | Repeatable workflows the user invokes by name. Currently: `init`, `ingest`. |
 | `Output/` | Generated non-knowledge: `video-ideas/`, and `analytics/` JSON snapshots (scratch — safe to delete). |
 
@@ -62,8 +62,10 @@ meet. Run it when asked (or when a week has clearly passed since the last
 
 1. Empty `inbox.md` to zero — file each item into `notes/`, `goals.md`,
    `decisions.md`, or `raw/`, then delete it from the inbox.
-2. Run the relevant `automations/scripts/`. If one errors on missing
-   config/API keys, stop and say what to fill in — **never fabricate numbers.**
+2. Run the relevant `automations/scripts/`. If there are none yet, use
+   whatever numbers the user gives you and say the loop is running blind. If
+   one errors on missing config/API keys, stop and say what to fill in —
+   **never fabricate numbers.**
 3. Rebuild `dashboard.md`: the numbers, each with its verdict from the
    thresholds in `company.md`, and each Q4 bet marked on-track / at-risk /
    stalled against `goals.md`.

@@ -32,7 +32,7 @@ That's it. The rest fills itself in as you use it.
 | `inbox.md` | Dump zone. Emptied weekly |
 | `notes/` | People, competitors, sources, playbooks |
 | `raw/` | Source documents you drop in |
-| `automations/` | Python scripts that pull your real numbers |
+| `automations/` | Scripts that pull your real numbers. Empty until you add one |
 | `CLAUDE.md` | How the system works — and your rules for how Claude works |
 
 ## The idea
@@ -58,10 +58,12 @@ demand.
 
 ## Optional: automations
 
-The scripts in `automations/` pull YouTube and finance numbers into the
-dashboard. They need a Python venv and a YouTube API key — see
-[automations/README.md](automations/README.md). Skip it entirely if you want;
-everything else works without them.
+`automations/` ships empty — a template script and setup instructions, no
+scripts. When you want your real numbers flowing into the dashboard, ask
+Claude: *"add an automation that pulls my Stripe revenue"* and it writes it.
+Needs Python; see [automations/README.md](automations/README.md).
+
+Everything else works without it.
 
 ## Notes
 
