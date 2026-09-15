@@ -22,17 +22,19 @@ Seven pages and three folders. That's the whole system — resist adding more.
 | `decisions.md` | Append-only. Each entry has a prediction and a review date. |
 | `log.md` | Append-only timeline of everything that happened. |
 | `inbox.md` | Frictionless capture. Emptied weekly. |
-| `notes/` | Flat folder of accumulated knowledge: people, competitors, sources, playbooks. No subfolders. |
+| `wiki/` | Flat folder of accumulated knowledge: people, competitors, sources, playbooks. No subfolders. |
 | `raw/` | Curated source documents. **Immutable** (one exception below). |
 | `automations/` | Scripts that pull the business's real numbers. Empty until the user adds one — see `automations/README.md`. |
 | `.claude/skills/` | Repeatable workflows the user invokes by name. Currently: `init`, `ingest`. |
+| `.claude/settings.json` | Guardrails: what I may never do, and what needs a yes first. |
+| `.claude/hooks/` | `guardrails.py` — the script that enforces them on every tool call. |
 | `Output/` | Generated non-knowledge: `video-ideas/`, and `analytics/` JSON snapshots (scratch — safe to delete). |
 
 ## The one rule that keeps this from rotting
 
 **State vs events.**
 
-- **State** — `company.md`, `goals.md`, `dashboard.md`, `notes/` — always
+- **State** — `company.md`, `goals.md`, `dashboard.md`, `wiki/` — always
   current, edited in place. When something changes, change it; if *why* it
   changed matters, note the change inline rather than overwriting silently.
 - **Events** — `log.md`, `decisions.md` — append-only. Never edit a past
@@ -44,7 +46,7 @@ it becomes a pile.
 ## Page conventions
 
 - Frontmatter on every page: `title`, `type`, `updated` (state pages), plus
-  `tags` on notes. `notes/` is flat, so tags and filenames are the index —
+  `tags` on notes. `wiki/` is flat, so tags and filenames are the index —
   there is no `index.md` by design.
 - Link with standard relative markdown links (Obsidian-compatible).
 - When a new source contradicts an existing claim, don't silently overwrite:
@@ -60,7 +62,7 @@ The load-bearing one — the only place data, goals, and what actually happened
 meet. Run it when asked (or when a week has clearly passed since the last
 `weekly` log entry).
 
-1. Empty `inbox.md` to zero — file each item into `notes/`, `goals.md`,
+1. Empty `inbox.md` to zero — file each item into `wiki/`, `goals.md`,
    `decisions.md`, or `raw/`, then delete it from the inbox.
 2. Run the relevant `automations/scripts/`. If there are none yet, use
    whatever numbers the user gives you and say the loop is running blind. If
@@ -84,12 +86,12 @@ sequences these steps.
    or `youtu.be/`, or a timestamped transcript body) — stop and follow
    *YouTube video ideation* below instead. YouTube sources never become notes.
 3. Discuss the takeaways with the user before writing (unless told to batch).
-4. Write or update a page in `notes/`, cross-linking both ways to related notes.
+4. Write or update a page in `wiki/`, cross-linking both ways to related notes.
 5. Update `company.md` or `goals.md` if the source actually changes them.
 6. Append an `ingest` entry to `log.md` listing what was touched.
 
 ### Query
-1. Search `notes/` and `log.md` first; drill in rather than re-deriving from
+1. Search `wiki/` and `log.md` first; drill in rather than re-deriving from
    `raw/` unless the notes are silent.
 2. Answer with citations to the pages used.
 3. If the answer is valuable beyond this conversation, offer to file it as a
@@ -107,7 +109,7 @@ Only relevant if the user makes videos — if they don't, ignore this operation
 and treat every source as a normal ingest.
 
 A YouTube source is raw material for a *new* video, not knowledge to
-accumulate — it doesn't touch `notes/`.
+accumulate — it doesn't touch `wiki/`.
 
 1. Read the transcript/description in `raw/`.
 2. Write `Output/video-ideas/YYYY-MM-DD-slug.md` (date = today), with
@@ -153,6 +155,28 @@ founder — agreement is worth nothing to them, judgment is.
 
 **Never fabricate a number.** If data is missing, say what's missing.
 
+**Guardrails are enforced, not remembered.** `.claude/settings.json` runs
+`.claude/hooks/guardrails.py` before every Bash, Read, Write, Edit, Glob and
+Grep call. Three outcomes:
+
+- **Never** — refused outright, no prompt to override: reading any credential
+  file (`.env`, `.ssh/`, `*.pem`, `credentials.*`; `.env.example` and friends
+  stay readable), recursive force deletes, `sudo`, raw disk writes, piping a
+  downloaded script into a shell, force pushes, hard resets, `git clean -f`,
+  history rewrites, and overwriting anything in `raw/`. If one of these is
+  genuinely needed, the user runs it themselves — I say so rather than
+  hunting for a way around it.
+- **Ask first** — the user gets a prompt: every git command that changes
+  state (read-only `status` / `log` / `diff` / `show` / `blame` run freely),
+  any single-file delete, `mv`, `chmod`, `chown`, installing software, `curl`
+  that sends data, `gh` actions, and editing a file in `raw/` (legal only to
+  add `ingested: true`).
+- **Free** — everything else, including running `automations/scripts/`.
+
+The check is textual, so a command that merely *mentions* a blocked pattern is
+refused too. That bias is intentional. If a guardrail is wrong, fix the
+script — never work around it.
+
 **Report against `goals.md`,** don't just state figures — a number without a
 verdict is noise.
 
@@ -164,5 +188,5 @@ verdict is noise.
   repo.** Adding a script, a folder, or a log `type` means this file is out of
   date until it's edited. A schema that lags reality is worse than none.
 - Adding a file to the root set is a real decision — the value of this system
-  is that it's small. Prefer a note in `notes/` or a section in an existing
+  is that it's small. Prefer a note in `wiki/` or a section in an existing
   page.

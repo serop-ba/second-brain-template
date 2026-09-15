@@ -73,7 +73,7 @@ Only after the interview. Fill in, in this order:
 5. **`log.md`** — append `## [YYYY-MM-DD] init | Second brain initialized`
    and one paragraph on what was set up.
 
-Leave `dashboard.md`, `decisions.md`, `inbox.md`, and `notes/` alone. They
+Leave `dashboard.md`, `decisions.md`, `inbox.md`, and `wiki/` alone. They
 fill themselves as the system runs.
 
 ## Don't

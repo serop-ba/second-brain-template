@@ -12,7 +12,7 @@ remembers whether they were right.
 1. Install [Claude Code](https://claude.com/claude-code).
 2. Clone or download this repo, then open it:
    ```bash
-   cd second-brain
+   cd second-brain-template
    claude
    ```
 3. Run `/init`. Claude interviews you about the business — about ten minutes —
@@ -30,14 +30,14 @@ That's it. The rest fills itself in as you use it.
 | `decisions.md` | Every decision with a prediction and a review date |
 | `log.md` | Timeline of everything that happened |
 | `inbox.md` | Dump zone. Emptied weekly |
-| `notes/` | People, competitors, sources, playbooks |
+| `wiki/` | People, competitors, sources, playbooks |
 | `raw/` | Source documents you drop in |
 | `automations/` | Scripts that pull your real numbers. Empty until you add one |
 | `CLAUDE.md` | How the system works — and your rules for how Claude works |
 
 ## The idea
 
-**State vs events.** `company`, `goals`, `dashboard` and `notes` are always
+**State vs events.** `company`, `goals`, `dashboard` and `wiki` are always
 current — edited in place. `log` and `decisions` are append-only and never
 edited. Keeping those apart is what stops the whole thing turning into a pile.
 

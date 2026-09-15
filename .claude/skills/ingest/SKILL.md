@@ -1,6 +1,6 @@
 ---
 name: ingest
-description: Ingest a source from raw/ into the second brain — writes a note in notes/, or a video idea if it's a YouTube source. Triggers on "ingest", "process this source", "add this to the brain", or when a new file appears in raw/.
+description: Ingest a source from raw/ into the second brain — writes a note in wiki/, or a video idea if it's a YouTube source. Triggers on "ingest", "process this source", "add this to the brain", or when a new file appears in raw/.
 ---
 
 # Ingest
@@ -32,12 +32,12 @@ Read the file. It's a **YouTube source** if frontmatter `source` matches
 
 1. Read it. Tell the user the 3–5 takeaways in a few lines and say which ones
    you'd file. Wait for a nod, unless they said to batch.
-2. Write or update `notes/<slug>.md` with frontmatter:
+2. Write or update `wiki/<slug>.md` with frontmatter:
    `title`, `type: note`, `created`, `updated`, `tags`, plus `raw:` and
    `origin:` for a source page. Body: what it says, what it means for this
    business, links to related notes.
 3. Cross-link **both ways** — add a link back from every note you reference.
-   `notes/` is flat, so links are plain `[name](name.md)`.
+   `wiki/` is flat, so links are plain `[name](name.md)`.
 4. Contradicts something already filed? Note it inline ("as of X this was
    true; Y revises it to Z") — never overwrite silently — and flag it in step 6.
 5. If it actually changes `company.md` or `goals.md`, update those too. Most
@@ -61,7 +61,7 @@ Read the file. It's a **YouTube source** if frontmatter `source` matches
 ## Don't
 
 - Don't edit `raw/` beyond the two `ingested*` keys.
-- Don't create folders under `notes/` — it's flat by design.
+- Don't create folders under `wiki/` — it's flat by design.
 - Don't fabricate. If the source is thin, say so rather than padding the note.
 - Don't write a note for a YouTube source, or a video idea for anything else.
 
