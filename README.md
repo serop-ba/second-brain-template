@@ -65,6 +65,11 @@ Needs Python; see [automations/README.md](automations/README.md).
 
 Everything else works without it.
 
+## License
+
+MIT — use it, change it, ship it, sell what you build with it. No attribution
+required.
+
 ## Notes
 
 - Works with [Obsidian](https://obsidian.md) — it's all plain markdown with
