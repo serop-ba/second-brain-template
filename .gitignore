@@ -1,0 +1,6 @@
+.DS_Store
+.obsidian/
+
+automations/.venv/
+automations/.env
+Output/analytics/*.json
