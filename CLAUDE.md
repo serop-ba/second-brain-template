@@ -28,7 +28,7 @@ Seven pages and three folders. That's the whole system — resist adding more.
 | `.claude/skills/` | Repeatable workflows the user invokes by name. Currently: `init`, `ingest`. |
 | `.claude/settings.json` | Guardrails: what I may never do, and what needs a yes first. |
 | `.claude/hooks/` | `guardrails.py` — the script that enforces them on every tool call. |
-| `Output/` | Generated non-knowledge: `video-ideas/`, and `analytics/` JSON snapshots (scratch — safe to delete). |
+| `Output/` | Generated non-knowledge: `analytics/` JSON snapshots from automations (scratch — safe to delete). |
 
 ## The one rule that keeps this from rotting
 
@@ -53,7 +53,7 @@ it becomes a pile.
   note it inline ("as of X this was true; Y revises it to Z") and flag it in
   the log entry.
 - `log.md` entry header: `## [YYYY-MM-DD] type | Title`, where `type` ∈
-  `capture`, `ingest`, `weekly`, `report`, `decision`, `video-idea`, `lint`.
+  `capture`, `ingest`, `weekly`, `report`, `decision`, `lint`.
 
 ## Operations
 
@@ -82,12 +82,11 @@ Also available as the `ingest` skill (`.claude/skills/ingest/`), which just
 sequences these steps.
 
 1. Read the new file in `raw/`.
-2. **If it's a YouTube video** (frontmatter `source` matching `youtube.com/watch`
-   or `youtu.be/`, or a timestamped transcript body) — stop and follow
-   *YouTube video ideation* below instead. YouTube sources never become notes.
-3. Discuss the takeaways with the user before writing (unless told to batch).
-4. Write or update a page in `wiki/`, cross-linking both ways to related notes.
-5. Update `company.md` or `goals.md` if the source actually changes them.
+2. Discuss the takeaways with the user before writing (unless told to batch).
+3. Write or update a page in `wiki/`, cross-linking both ways to related notes.
+4. Update `company.md` or `goals.md` if the source actually changes them.
+5. Mark it processed — the one permitted edit to `raw/`: add `ingested: true`
+   and `ingested_date: YYYY-MM-DD` to its frontmatter.
 6. Append an `ingest` entry to `log.md` listing what was touched.
 
 ### Query
@@ -103,22 +102,6 @@ When the user makes a real call ("we're doing X because Y"):
    **Expect** and **Review on**, which are not optional.
 2. Update `goals.md` if it moves a target, noting the change inline.
 3. Append a `decision` entry to `log.md`.
-
-### YouTube video ideation
-Only relevant if the user makes videos — if they don't, ignore this operation
-and treat every source as a normal ingest.
-
-A YouTube source is raw material for a *new* video, not knowledge to
-accumulate — it doesn't touch `wiki/`.
-
-1. Read the transcript/description in `raw/`.
-2. Write `Output/video-ideas/YYYY-MM-DD-slug.md` (date = today), with
-   frontmatter (`title`, `date`, `source`, `source_video`) and three sections:
-   **Optimized title**, **Hook**, **What to show** — concrete beats so the
-   video can be replicated without rewatching the source.
-3. Mark the raw file processed — the one permitted edit to `raw/`: add
-   `ingested: true` and `ingested_date: YYYY-MM-DD` to its frontmatter.
-4. Append a `video-idea` entry to `log.md`.
 
 ### Lint
 On request, health-check the repo and report:
