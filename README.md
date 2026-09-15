@@ -10,8 +10,9 @@ remembers whether they were right.
 ## Setup
 
 1. Install [Claude Code](https://claude.com/claude-code).
-2. Clone or download this repo, then open it:
+2. Clone this repo, then open it:
    ```bash
+   git clone https://github.com/serop-ba/second-brain-template.git
    cd second-brain-template
    claude
    ```
