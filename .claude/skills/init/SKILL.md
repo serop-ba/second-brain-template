@@ -1,6 +1,6 @@
 ---
 name: init
-description: Set up a fresh second brain — interviews the founder about their business, then fills in company.md, goals.md, the automation config, and the working rules. Run this once, first. Triggers on "init", "set up my second brain", "get started", or when company.md is still template text.
+description: Set up a fresh second brain — interviews the founder about their business, their marketing and sales, then fills in company.md, goals.md, the departments/ folders, and the working rules. Run this once, first. Triggers on "init", "set up my second brain", "get started", or when company.md is still template text.
 ---
 
 # Init
@@ -52,6 +52,39 @@ advice, and founders under-report them.
 - Where should this be in 1–3 years? (north star)
 - What would make *this year* a success?
 - What are you betting this quarter — max three, each with a number attached?
+  For each, which department carries it?
+
+**Round 5 — marketing and sales**
+
+This fills `departments/`. Ask about the work that's actually happening, not
+the org they'd like to have.
+
+*Marketing*
+- How do strangers find out you exist today? Name the channels that are
+  genuinely running, not the ones you mean to start.
+- Paid: are you running ads? Platform, offer, daily budget, and how long it's
+  been live. What's the most you'd pay to acquire a customer before you'd
+  call it broken?
+- Organic: what are you publishing, where, how often — and what is it meant to
+  move? If the honest answer is "views", say so and ask what it would have to
+  do to be worth the hours.
+- What have you already tried and stopped? This is the highest-value answer in
+  the whole interview and nobody volunteers it — ask directly, and write it to
+  "what's dead" so they don't re-run it in six months.
+
+*Sales*
+- Once someone is interested, what actually happens until money moves?
+  Walk the steps.
+- Where do people drop out, and do you know that or assume it?
+- Is there an upsell or second offer after the first purchase?
+
+Then, for each channel they named: **what's running right now that you don't
+yet know the answer to?** That's their first experiment — get a hypothesis and
+a read date for it.
+
+Only scaffold units where work is happening. A department with nothing in it
+is worse than no department: it reads as coverage. Say that plainly if they
+ask for one anyway — then build it, it's their call.
 
 Then ask if they want anything added to the working rules: tone, brand voice,
 things you should always or never do.
@@ -62,15 +95,22 @@ Only after the interview. Fill in, in this order:
 
 1. **`company.md`** — every section, in their words not yours. The metrics
    table needs real thresholds; if they couldn't give one, write `TBD` rather
-   than inventing a number.
+   than inventing a number. Tag every row with the owning `Dept`.
 2. **`goals.md`** — north star, this year, and the quarter's bets with
-   success numbers, status `not started`, and 2–3 next steps each.
-3. **`CLAUDE.md`** — append anything from the working-rules question to the
-   *Rules for how I work* section. Don't touch the rest.
-4. **Automations** — `automations/` ships empty. Don't build anything now.
-   Note in the log which of their metrics could be pulled automatically and
-   which are manual, and mention it in the wrap-up as a later step.
-5. **`log.md`** — append `## [YYYY-MM-DD] init | Second brain initialized`
+   success numbers, `Carried by`, status `not started`, and 2–3 next steps each.
+3. **`departments/`** — for each unit with real work: fill `direction.md`
+   (the job, current direction, what's working, what's dead, metrics owned,
+   open questions) and append any live test to `experiments.md` with a
+   hypothesis and read date. Delete the folders for units they don't have —
+   `departments/README.md` explains the shape if they add one later.
+4. **`CLAUDE.md`** — append anything from the working-rules question to the
+   *Rules for how I work* section, and update the unit list under
+   *Departments* to match what you actually built. Don't touch the rest.
+5. **Automations and MCP** — `automations/` and `.mcp.json` ship empty. Don't
+   build anything now. Note in the log which of their metrics could be pulled
+   automatically, from which department, and which are manual — and mention it
+   in the wrap-up as a later step.
+6. **`log.md`** — append `## [YYYY-MM-DD] init | Second brain initialized`
    and one paragraph on what was set up.
 
 Leave `dashboard.md`, `decisions.md`, `inbox.md`, and `wiki/` alone. They
@@ -84,6 +124,8 @@ fill themselves as the system runs.
 - Don't accept a bet with no number. Push until there's one, or mark it
   `unmeasured` and flag it.
 - Don't leave template placeholder text sitting next to real content.
+- Don't keep a department folder they have no work in. Delete it.
+- Don't log a live test as a decision. It's an experiment until it's read.
 
 ## After
 

@@ -11,7 +11,8 @@ the filing, the synthesis, and the bookkeeping.
 
 ## The files
 
-Seven pages and three folders. That's the whole system — resist adding more.
+Seven root pages and four folders. That's the whole system — resist adding
+more. The root pages are the company view; `departments/` is the work view.
 
 | Path | What it is |
 |---|---|
@@ -22,26 +23,74 @@ Seven pages and three folders. That's the whole system — resist adding more.
 | `decisions.md` | Append-only. Each entry has a prediction and a review date. |
 | `log.md` | Append-only timeline of everything that happened. |
 | `inbox.md` | Frictionless capture. Emptied weekly. |
+| `departments/` | One folder per area of work. Each unit has `direction.md` (state) and `experiments.md` (events). See below. |
 | `wiki/` | Flat folder of accumulated knowledge: people, competitors, sources, playbooks. No subfolders. |
 | `raw/` | Curated source documents. **Immutable** (one exception below). |
 | `automations/` | Scripts that pull the business's real numbers. Empty until the user adds one — see `automations/README.md`. |
 | `.claude/skills/` | Repeatable workflows the user invokes by name. Currently: `init`, `ingest`. |
 | `.claude/settings.json` | Guardrails: what I may never do, and what needs a yes first. |
 | `.claude/hooks/` | `guardrails.py` — the script that enforces them on every tool call. |
-| `Output/` | Generated non-knowledge: `analytics/` JSON snapshots from automations (scratch — safe to delete). |
+| `.mcp.json` | Project MCP servers — live connections to outside tools (Stripe, Meta, Notion…). Checked in and shared; ships empty. |
+| `Output/` | Generated non-knowledge: `analytics/<department>/` JSON snapshots from automations (scratch — safe to delete). |
 
 ## The one rule that keeps this from rotting
 
 **State vs events.**
 
-- **State** — `company.md`, `goals.md`, `dashboard.md`, `wiki/` — always
-  current, edited in place. When something changes, change it; if *why* it
-  changed matters, note the change inline rather than overwriting silently.
-- **Events** — `log.md`, `decisions.md` — append-only. Never edit a past
-  entry. If something is superseded, write a new entry that links back.
+- **State** — `company.md`, `goals.md`, `dashboard.md`, `wiki/`, and every
+  `direction.md` — always current, edited in place. When something changes,
+  change it; if *why* it changed matters, note the change inline rather than
+  overwriting silently.
+- **Events** — `log.md`, `decisions.md`, and every `experiments.md` —
+  append-only. Never edit a past entry. If something is superseded, write a new
+  entry that links back.
 
 Keep these straight and the system stays legible at any size. Blur them and
 it becomes a pile.
+
+The department layer is this same rule applied one level down — no new
+mechanism. That's the point: nothing new to learn when the repo grows.
+
+## Departments
+
+`departments/` holds one folder per area of work actually happening. Every unit
+— a department, or a channel inside one — has at most two files:
+
+- `direction.md` (**state**) — where this unit is headed, what's proven, what's
+  dead, which metrics it owns.
+- `experiments.md` (**events**) — every test, with a hypothesis and a
+  **read-on date**. Append-only; the only later edit is filling in `Result` and
+  `Verdict` when the read date arrives.
+
+**`experiments.md` lives where the work happens.** A department with channels
+keeps only `direction.md`; its channels own the experiments. A department
+without channels keeps its own. Current units:
+
+```
+departments/sales/              direction.md + experiments.md
+departments/marketing/          direction.md
+departments/marketing/ads/      direction.md + experiments.md
+departments/marketing/content/  direction.md + experiments.md
+```
+
+Adding or removing a unit means editing this list in the same turn.
+
+**Experiment vs decision.** An experiment is a test you run — hypothesis,
+read-on date, lives in a unit. A decision is a commitment you make —
+expectation, review-on date, lives in `decisions.md`. Experiments feed
+decisions. Never log "we're going to try X" as a decision.
+
+**Numbers are defined once,** in `company.md`'s metrics table, tagged with the
+owning `Dept`. A `direction.md` names the metrics it owns; it never redefines
+them. Automations for a unit live in `automations/scripts/<department>/` and
+write to `Output/analytics/<department>/`.
+
+**One dashboard.** Departments get a section in `dashboard.md`, never a
+dashboard of their own.
+
+A unit with no experiment in a quarter is not a unit. Fold it into its parent's
+`direction.md` under "what's dead" and delete the folder — an empty department
+folder reads as coverage when it's really neglect.
 
 ## Page conventions
 
@@ -53,7 +102,13 @@ it becomes a pile.
   note it inline ("as of X this was true; Y revises it to Z") and flag it in
   the log entry.
 - `log.md` entry header: `## [YYYY-MM-DD] type | Title`, where `type` ∈
-  `capture`, `ingest`, `weekly`, `report`, `decision`, `lint`.
+  `init`, `capture`, `ingest`, `weekly`, `report`, `decision`, `experiment`,
+  `lint`. Use `experiment` when one is launched, read, or killed — prefix the
+  title with the unit, e.g. `marketing/ads | Static creative round 1 — read`.
+- An `experiments.md` entry carries `Status`, `Hypothesis`, `Setup`, `Cost`,
+  `Read on`, `Result`, `Verdict`, `Led to`. `Hypothesis` and `Read on` are not
+  optional — an experiment with no read date never gets judged, it just
+  quietly becomes "what we do".
 
 ## Operations
 
@@ -63,19 +118,30 @@ meet. Run it when asked (or when a week has clearly passed since the last
 `weekly` log entry).
 
 1. Empty `inbox.md` to zero — file each item into `wiki/`, `goals.md`,
-   `decisions.md`, or `raw/`, then delete it from the inbox.
-2. Run the relevant `automations/scripts/`. If there are none yet, use
+   `decisions.md`, a unit's `experiments.md`, or `raw/`, then delete it from
+   the inbox.
+2. Run the relevant `automations/scripts/**`. If there are none yet, use
    whatever numbers the user gives you and say the loop is running blind. If
    one errors on missing config/API keys, stop and say what to fill in —
    **never fabricate numbers.**
-3. Rebuild `dashboard.md`: the numbers, each with its verdict from the
-   thresholds in `company.md`, and each Q4 bet marked on-track / at-risk /
-   stalled against `goals.md`.
-4. Surface what needs attention: anomalies, stalled bets, and any
-   `decisions.md` entry whose review date has passed (fill in its Outcome
-   with the user).
-5. Append one `weekly` entry to `log.md`: what moved, what didn't, what's next.
-6. If something calls for a real choice, say so and offer to log a Decision.
+3. Walk each unit in `departments/`:
+   - Any experiment past its `Read on` date with an empty `Result` — fill it in
+     with the user, set a `Verdict`, and update the unit's `direction.md`
+     ("what's working" or "what's dead"). This is the step that makes the
+     department layer worth having; skipping it turns it into a diary.
+   - Any experiment running with no read date — give it one now.
+4. Rebuild `dashboard.md`: company numbers, then a section per unit, each
+   metric with its verdict from the thresholds in `company.md`, each bet marked
+   on-track / at-risk / stalled against `goals.md`, and the data-freshness
+   table. A metric whose script didn't run is marked stale, never carried
+   forward as if it were current.
+5. Surface what needs attention: anomalies, stalled bets, experiments past
+   their read date, `decisions.md` entries past their review date, and any unit
+   with no activity this month.
+6. Append one `weekly` entry to `log.md`: what moved, what didn't, what's next.
+7. If something calls for a real choice, say so and offer to log a Decision.
+   If it calls for a test rather than a choice, offer to log an experiment
+   instead — and say which it is.
 
 ### Ingest
 Also available as the `ingest` skill (`.claude/skills/ingest/`), which just
@@ -96,6 +162,23 @@ sequences these steps.
 3. If the answer is valuable beyond this conversation, offer to file it as a
    note and log it.
 
+### Experiment
+When the user starts a test ("I'm launching X to see if Y"):
+1. Append an entry to the right unit's `experiments.md` — including
+   **Hypothesis** and **Read on**, which are not optional. Push for a read date
+   *and*, where conversion is involved, the sample size needed to judge it.
+2. Update that unit's `direction.md` "current direction" / "what's live" if the
+   test changes what's running.
+3. Append an `experiment` entry to `log.md`.
+
+At the read date: fill in `Result` and `Verdict` in place (the one permitted
+edit to a past entry), move the finding into `direction.md` under "what's
+working" or "what's dead", and log it. If it earned a commitment, offer a
+Decision — and link it from `Led to`.
+
+Push back on a test that can't fail, has no read date, or is too small to read.
+Those aren't experiments, they're activity.
+
 ### Decision
 When the user makes a real call ("we're doing X because Y"):
 1. Append an entry to `decisions.md` in the documented format — including
@@ -107,8 +190,13 @@ When the user makes a real call ("we're doing X because Y"):
 On request, health-check the repo and report:
 - Contradictions between pages, and stale claims superseded by newer sources
 - Notes with no inbound links; concepts mentioned repeatedly with no note
-- Bets in `goals.md` with no activity in recent `log.md` entries
+- Bets in `goals.md` with no activity in recent `log.md` entries, and bets
+  whose `Carried by` unit has no matching experiment
 - Decisions past their review date with no Outcome filled in
+- Experiments past their read date with no Result; experiments running with no
+  read date at all
+- Units with no experiment this quarter — candidates for deletion
+- Metrics claimed in a `direction.md` that aren't defined in `company.md`
 - `dashboard.md` older than the most recent data pull
 - Data gaps a web search or new source could fill
 
@@ -162,6 +250,14 @@ script — never work around it.
 
 **Report against `goals.md`,** don't just state figures — a number without a
 verdict is noise.
+
+**`.mcp.json` is checked into git.** Never write a real key, token or account
+secret into it — use `${VAR}` expansion and put the value in
+`automations/.env`, which is gitignored. If a user pastes a live key to add a
+server, put the placeholder in the file and tell them which variable to set.
+Two ways to get the same data — an MCP server and a script in `automations/` —
+is one too many: prefer the script for anything the weekly loop needs
+unattended, and MCP for things worth asking about interactively.
 
 ## Notes for future sessions
 

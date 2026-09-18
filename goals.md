@@ -27,6 +27,9 @@ a number that says whether it worked.
 
 - **Why:** _what it's supposed to move_
 - **Success looks like:** _specific number by end of quarter_
+- **Carried by:** _the unit doing the work — `marketing/ads`, `sales`, or
+  `company` if it genuinely spans them. A bet that maps to no department is
+  either a company-level bet or it's nobody's job._
 - **Status:** not started
 - **Next steps:**
   - _step_

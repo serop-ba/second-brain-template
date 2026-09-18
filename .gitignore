@@ -4,3 +4,4 @@
 automations/.venv/
 automations/.env
 Output/analytics/*.json
+Output/analytics/**/*.json
