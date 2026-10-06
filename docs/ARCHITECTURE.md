@@ -20,6 +20,7 @@ core/
   graph.py                  rows -> nodes and links for the orbit map
   page/                     index.html, app.js, app.css, orbit.js
 automations/                installed automations (+ _template)
+drop/                       raw files to ingest; `doc sweep` (cli.py) imports them as sources and moves them to drop/done/
 catalog/                    packs and profiles available to install
 tools/migrate_markdown.py   import from the markdown second brain
 tests/test_core.py          python3 -m unittest discover -s tests

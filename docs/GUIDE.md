@@ -61,6 +61,8 @@ Or hit **Weekly loop** in the console's Automations tab. It empties the inbox, r
 
 Between loops: `/record` when something happens (a decision, a price change, an experiment), `/ingest` when you read or hear something worth keeping, and dump everything else in the inbox.
 
+**Files go in `drop/`.** Put a transcript, article or PDF in the `drop/` folder, then tell Claude `/ingest`. `python3 brain.py doc sweep` imports `.md`, `.txt`, `.vtt`, `.srt` (and `.pdf` if `pdftotext` is installed: `brew install poppler`) as sources and moves the originals to `drop/done/`. Anything it can't read (scans, Word, images) stays in `drop/` and Claude reads it itself. The inbox is different: short text notes and ideas, not files.
+
 ## 5. Extend it
 
 | I want to... | Do |

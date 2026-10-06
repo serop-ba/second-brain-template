@@ -14,4 +14,8 @@ automations/csv-import/inbox/*
 !automations/csv-import/inbox/.gitkeep
 automations/csv-import/done/
 
+# Raw files waiting to be ingested
+drop/*
+!drop/.gitkeep
+
 .playwright-mcp/

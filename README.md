@@ -29,7 +29,7 @@ Claude removes the demo (only what the demo created), interviews you for about t
 |---|---|---|
 | Any time | Capture a thought | Console, Activity, Inbox, or `python3 brain.py inbox add "..."` |
 | Something happened | `/record` a decision, a change or an experiment | Claude |
-| You have a document | `/ingest` it into notes | Claude |
+| You have a document | Put the file in `drop/`, then `/ingest` it into notes | Claude |
 | Weekly | `/weekly`: inbox to zero, numbers, bets, decisions due, briefs, log entry | Claude, or the console's **Weekly loop** button |
 | A number should fill itself | `/connect` a tool (Stripe, YouTube, Meta Ads CSV, or anything with an API or export) | Claude |
 | Anything | Open the console and look | `python3 brain.py serve` |
@@ -39,6 +39,7 @@ Claude removes the demo (only what the demo created), interviews you for about t
 ```
 brain.py            the command line: the one way Claude and you change the data
 data/brain.db       your business (gitignored; back it up)
+drop/               raw files waiting to be ingested (.md, .txt, .pdf...; gitignored)
 core/               the platform: database, rules, console, orbit map (standard library only)
 automations/        pullers that feed numbers in; csv-import ships installed
 catalog/            use-case packs (Stripe, YouTube, Meta Ads) and starter profiles (creator, service, SaaS, e-commerce)

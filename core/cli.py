@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sqlite3
+import subprocess
 import sys
 from datetime import date, timedelta
 from pathlib import Path
@@ -56,6 +58,23 @@ def text_of(args, field: str = "text", required: bool = True) -> str | None:
     if value is None and required:
         raise Error(f"give --{field} (or --file PATH, or --{field} - to read stdin)")
     return value
+
+
+DROP = db.ROOT / "drop"
+DROP_TEXT = {".md", ".markdown", ".txt", ".vtt", ".srt"}
+
+
+def drop_text(p: Path) -> str | None:
+    """Text of a dropped file, or None when this tool can't read it (Claude must)."""
+    ext = p.suffix.lower()
+    if ext in DROP_TEXT:
+        return p.read_text()
+    if ext == ".pdf" and shutil.which("pdftotext"):
+        try:
+            return subprocess.run(["pdftotext", "-layout", str(p), "-"], capture_output=True, text=True, check=True).stdout
+        except subprocess.CalledProcessError:
+            return None
+    return None
 
 
 def since(value: str | None) -> str | None:
@@ -131,6 +150,24 @@ def h_doc(a):
         p = Path(a.path)
         d = store.doc_add(a.title or p.stem.replace("-", " ").replace("_", " ").title(), p.read_text(), a.kind, a.dept, a.tags or "", None, str(p), why(a))
         out(d, f"imported {p.name} as {d['kind']} {d['slug']}")
+    elif v == "sweep":
+        DROP.mkdir(exist_ok=True)
+        imported, left = [], []
+        for p in sorted(DROP.iterdir()):
+            if p.name.startswith(".") or not p.is_file():
+                continue
+            text = drop_text(p)
+            if not (text or "").strip():
+                left.append(p.name)
+                continue
+            d = store.doc_add(p.stem.replace("-", " ").replace("_", " ").title(), text, "source", a.dept, a.tags or "", None, str(p), why(a))
+            (DROP / "done").mkdir(exist_ok=True)
+            p.rename(DROP / "done" / f"{db.today()}-{p.name}")
+            imported.append(d["slug"])
+        lines = [f"imported {len(imported)} as sources: {', '.join(imported) or '-'}"]
+        if left:
+            lines.append(f"left in drop/ (Claude must read these, then `doc add --kind source --source-ref` and move them to drop/done/): {', '.join(left)}")
+        out({"imported": imported, "left": left}, "\n".join(lines))
     elif v == "update":
         f = {k: val for k, val in dict(title=a.title, body=text_of(a, "body", False), kind=a.kind, department=a.dept, tags=a.tags).items() if val is not None}
         d = store.doc_update(a.ref, why(a), **f)
@@ -384,6 +421,7 @@ def build() -> argparse.ArgumentParser:
     verb(s, "import", ("path",), ("--title",), ("--kind", {"default": "source"}), ("--dept",), ("--tags",))
     verb(s, "update", ("ref",), ("--title",), ("--kind",), ("--dept",), ("--tags",), ("--body",), FILE)
     verb(s, "rm", ("ref",)); verb(s, "ingest", ("ref",))
+    verb(s, "sweep", ("--dept",), ("--tags",), help="import everything in drop/ as sources")
 
     g = sub.add_parser("north-star", parents=[common], help="set the north star")
     g.add_argument("text"); g.add_argument("--detail"); g.set_defaults(fn=h_north_star, verb="set")

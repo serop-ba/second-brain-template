@@ -58,7 +58,7 @@ context [--full]
 company set KEY "value"                         dept add NAME [--owner --hours --owns --intro]
 dept update REF --hours 5 --owner "Sam"         dept brief REF --text "..."        dept show REF
 doc add "Title" --kind note|source|playbook --dept REF --tags a,b --body "..."     doc get SLUG    doc update SLUG --body "..."
-doc search WORDS    doc import FILE --kind source    doc ingest SLUG (marks a source processed)    doc history SLUG
+doc search WORDS    doc import FILE --kind source    doc sweep (imports everything in drop/ as sources)    doc ingest SLUG (marks a source processed)    doc history SLUG
 north-star "..."    goal add "..."    bet add "Title" --dept REF --success "number" --rationale "..." --status "on track" --next "step 1\nstep 2"
 call add "question" --context "..."    call resolve ID --text "..."
 task add goal|today "text" --bet N     task done ID    task rm ID    task week        (every item names the bet it serves)

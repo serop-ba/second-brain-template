@@ -5,7 +5,7 @@ description: Turn source material (an article, transcript, call notes, competito
 
 # Ingest
 
-1. **Get it in.** If it's a file: `python3 brain.py doc import PATH --kind source --dept <slug> --tags a,b`. If it's pasted text: `doc add "Title" --kind source --body -` (stdin) or `--file`. Check `doc list --kind source` for sources not yet ingested (`not ingested`).
+1. **Get it in.** Files the user dropped in `drop/`: run `python3 brain.py doc sweep` (imports .md/.txt/.vtt/.srt, and .pdf when `pdftotext` is installed). Anything it reports as left in `drop/` (scans, Word, images): read it yourself, file the text with `doc add --kind source --source-ref PATH`, then move the file to `drop/done/`. If it's a single file elsewhere: `python3 brain.py doc import PATH --kind source --dept <slug> --tags a,b`. If it's pasted text: `doc add "Title" --kind source --body -` (stdin) or `--file`. Check `doc list --kind source` for sources not yet ingested (`not ingested`).
 2. **Read it** with `doc get SLUG`.
 3. **Discuss the takeaways first**, in a few lines, unless the user said to batch. Name what is new, what contradicts something already in the brain (`search WORDS` to check), and what you'd ignore.
 4. **Write notes**: `doc add "..." --kind note --dept ... --tags ... --body "..."` or `doc update SLUG --body ...` for an existing one. Link related notes with `[[slug]]` in the body. If the source contradicts a claim, update that document and write the revision inline with the date; don't overwrite silently.
