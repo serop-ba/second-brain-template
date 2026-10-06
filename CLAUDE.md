@@ -128,5 +128,9 @@ doesn't change what the user thinks or does. Provoke, don't explain. Look for th
 
 ## Keeping this file honest
 
+After any change to the software (code, schema, skills, folders), run the `ship-change` skill: add or update tests, update every doc that describes what you touched, run the suite. Don't wait to be asked.
+
 If you change the schema, a command or the way the system works, update this file and `docs/ARCHITECTURE.md` in the same turn,
 and run `python3 -m unittest discover -s tests`. A schema that lags reality is worse than none.
+
+Commits run the suite through `.githooks/pre-commit` (enabled with `git config core.hooksPath .githooks`). Never use `--no-verify` to get past a failing test: fix it.

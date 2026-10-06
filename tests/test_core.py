@@ -216,6 +216,10 @@ class Backups(Base):
 
 
 class Cli(Base):
+    def test_pre_commit_hook_runs_the_suite(self):
+        hook = Path(__file__).resolve().parent.parent / ".githooks" / "pre-commit"
+        self.assertTrue(os.access(hook, os.X_OK))
+        self.assertIn("unittest discover -s tests", hook.read_text())
     def test_flags_work_after_the_verb_and_json_is_parseable(self):
         self.run_cli("dept", "add", "Marketing", "--reason", "setup")
         data = json.loads(self.run_cli("dept", "list", "--json"))
@@ -229,6 +233,28 @@ class Cli(Base):
         with self.assertRaises(SystemExit) as ctx:
             self.run_cli("metric", "set", "ghost", "1")
         self.assertIn("no metric 'ghost'", str(ctx.exception))
+
+    def test_sweep_imports_readable_files_and_leaves_the_rest(self):
+        drop = Path(self.tmp.name) / "drop"
+        drop.mkdir()
+        (drop / "call-notes.md").write_text("We priced the audit at 900")
+        (drop / "empty.txt").write_text("  ")
+        (drop / "scan.docx").write_bytes(b"PK")
+        (drop / ".gitkeep").write_text("")
+        original, cli.DROP = cli.DROP, drop
+        try:
+            data = json.loads(self.run_cli("doc", "sweep", "--tags", "pricing", "--json"))
+            again = json.loads(self.run_cli("doc", "sweep", "--json"))
+        finally:
+            cli.DROP = original
+        self.assertEqual(data["imported"], ["call-notes"])
+        self.assertEqual(sorted(data["left"]), ["empty.txt", "scan.docx"])
+        doc = store.doc_get("call-notes")
+        self.assertEqual((doc["kind"], doc["ingested"], doc["tags"]), ("source", 0, "pricing"))
+        self.assertEqual([p.name[11:] for p in (drop / "done").iterdir()], ["call-notes.md"])
+        self.assertFalse((drop / "call-notes.md").exists())
+        self.assertEqual(again["imported"], [])  # nothing is imported twice
+        self.assertTrue((drop / ".gitkeep").exists())
 
 
 class Automations(Base):

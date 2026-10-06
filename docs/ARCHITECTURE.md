@@ -24,6 +24,7 @@ drop/                       raw files to ingest; `doc sweep` (cli.py) imports th
 catalog/                    packs and profiles available to install
 tools/migrate_markdown.py   import from the markdown second brain
 tests/test_core.py          python3 -m unittest discover -s tests
+.githooks/pre-commit        blocks a commit when the suite fails; enable once with `git config core.hooksPath .githooks` (skip with --no-verify)
 ```
 
 ## Data model

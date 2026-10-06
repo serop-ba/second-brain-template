@@ -43,7 +43,7 @@ drop/               raw files waiting to be ingested (.md, .txt, .pdf...; gitign
 core/               the platform: database, rules, console, orbit map (standard library only)
 automations/        pullers that feed numbers in; csv-import ships installed
 catalog/            use-case packs (Stripe, YouTube, Meta Ads) and starter profiles (creator, service, SaaS, e-commerce)
-.claude/            the skills Claude uses (/init /weekly /record /ingest /connect /lint) and its guardrails
+.claude/            the skills Claude uses (/init /weekly /record /ingest /connect /lint, plus /ship-change for docs and tests when the software changes) and its guardrails
 CLAUDE.md           how Claude works in here
 docs/               GUIDE.md (make it yours), PROMPTS.md (copy-paste), ARCHITECTURE.md (how it works)
 ```
