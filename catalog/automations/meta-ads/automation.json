@@ -1,0 +1,13 @@
+{
+  "label": "Meta Ads (CSV export)",
+  "description": "Ad spend, results, cost per result and cost per click from a CSV exported from Ads Manager. No API access needed: drop the export in exports/ and refresh.",
+  "order": 30,
+  "department": "marketing",
+  "metrics": [
+    {"key": "ad_spend", "name": "Ad spend", "unit": "", "definition": "Amount spent per day across the exported campaigns, in the account currency."},
+    {"key": "ad_results", "name": "Ad results", "unit": "results", "definition": "Results per day as Ads Manager counts them for the campaign objective."},
+    {"key": "ad_cost_per_result", "name": "Cost per result", "unit": "", "definition": "Ad spend divided by results for the day, blended across campaigns."},
+    {"key": "ad_cpc", "name": "Cost per click", "unit": "", "definition": "Ad spend divided by link clicks for the day."}
+  ],
+  "pull": [{"label": "Ads Manager export", "run": "pull.py", "needs": "exports/*.csv"}]
+}

@@ -66,20 +66,18 @@ if tool in ("Read", "Write", "Edit", "NotebookEdit", "Glob", "Grep"):
         if is_secret(ti.get(key)):
             out("deny", SECRET_MSG)
 
-# ------------------------------------------------------- raw/ immutability ---
-# raw/ is immutable by schema; the one legal edit is the `ingested:` flag.
-if tool == "Write":
-    fp = str(ti.get("file_path") or "")
-    if re.search(r"(^|/)raw/", fp):
-        out("deny",
-            "Blocked by project guardrail: raw/ is immutable. Source documents "
-            "are never overwritten - write to wiki/ or Output/ instead.")
-if tool == "Edit":
-    fp = str(ti.get("file_path") or "")
-    if re.search(r"(^|/)raw/", fp):
-        out("ask",
-            "raw/ is immutable except for adding `ingested: true` to frontmatter. "
-            "Confirm this edit is only that.")
+# ------------------------------------------------- the database is the system ---
+# Every change must go through `python3 brain.py ...` so it is validated and lands
+# in the change history. Direct file or SQL access would bypass both.
+DB_MSG = (
+    "Blocked by project guardrail: the brain's data lives in data/brain.db and is changed only with "
+    "`python3 brain.py ...` (see CLAUDE.md), so every change is validated and recorded in the change history. "
+    "Run `python3 brain.py --help` to find the command."
+)
+if tool in ("Write", "Edit", "NotebookEdit", "Read"):
+    fp = str(ti.get("file_path") or ti.get("notebook_path") or "")
+    if re.search(r"(^|/)data/[^/]*\.(db|db-wal|db-shm)$", fp):
+        out("deny", DB_MSG)
 
 # ------------------------------------------------------------------- bash ---
 if tool not in ("Bash", "BashOutput"):
@@ -90,6 +88,11 @@ if not cmd.strip():
     ok()
 
 flat = " ".join(cmd.split())
+
+is_cli = re.match(r"^(python3?|py)\s+(\./)?brain\.py\b", flat)  # a plain brain.py call may mention sqlite in its text
+chained_db = re.search(r"(&&|\|\||;|\|)\s*\S*(sqlite3?\b|data/\S*\.db)", flat)
+if re.search(r"\bsqlite3?\b|\bdata/[^\s]*\.db\b|\bbrain\.db\b", flat) and not (is_cli and not chained_db):
+    out("deny", DB_MSG)
 
 # Secrets by way of the shell.
 if re.search(r"(^|[\s'\"=/])\.env\b", flat) and not re.search(r"\.env\.(example|sample|template|dist)\b", flat):

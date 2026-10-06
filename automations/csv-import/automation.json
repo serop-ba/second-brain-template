@@ -1,0 +1,7 @@
+{
+  "label": "CSV import",
+  "description": "Drop a CSV with the columns metric,date,value into inbox/ and refresh. The way to get numbers in from any tool that can export a file.",
+  "order": 5,
+  "metrics": [],
+  "pull": [{"label": "CSV files in inbox/", "run": "pull.py", "needs": "inbox/*.csv"}]
+}

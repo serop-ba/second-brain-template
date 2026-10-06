@@ -1,7 +1,13 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
+    "allow": [
+      "Bash(python3 brain.py:*)",
+      "Bash(python brain.py:*)"
+    ],
     "deny": [
+      "Read(./data/*.db)",
+      "Edit(./data/*.db)",
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(**/.env)",
@@ -28,13 +34,25 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/brain.py\" context || python \"$CLAUDE_PROJECT_DIR/brain.py\" context",
+            "timeout": 20,
+            "statusMessage": "Loading the brain"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash|Read|Write|Edit|NotebookEdit|Glob|Grep",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py\" || python \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardrails.py\"",
             "timeout": 10,
             "statusMessage": "Checking guardrails"
           }

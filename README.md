@@ -1,176 +1,73 @@
-# Second Brain for Founders
+# Brain OS
 
-A business operating system that lives in plain markdown and is maintained by
-Claude Code. Seven pages, one folder per department, one weekly loop.
+A business operating system you run with Claude Code. One database holds the whole picture of your business: the company, departments, goals and bets, every number with its history, every decision with a prediction, a timeline, and your notes. A local console draws it, and Claude files into it.
 
-It's not note-taking. It's a system that keeps a current picture of your
-business, checks it against your goals, records what you tried and what you
-decided — and remembers whether either was right.
+It isn't note-taking. It keeps a current picture of the business, checks it against your goals, records the decisions you make, and remembers whether they were right. **Every change is recorded: who made it, when, and why, and any change can be undone.**
 
-## Setup
+## Start in five minutes
 
-1. Install [Claude Code](https://claude.com/claude-code).
-2. Clone this repo, then open it:
-   ```bash
-   git clone https://github.com/serop-ba/second-brain-template.git
-   cd second-brain-template
-   claude
-   ```
-3. Run `/init`. Claude interviews you about the business — about ten minutes —
-   and fills in the scaffolding from your answers.
+You need [Python 3.9+](https://www.python.org/downloads/) and [Claude Code](https://claude.com/claude-code). No packages to install.
 
-That's it. The rest fills itself in as you use it.
-
-## What's in it
-
-| File | What it holds |
-|---|---|
-| `company.md` | What the business is, what you sell, your constraints, what each metric means |
-| `goals.md` | North star → this year → this quarter's bets |
-| `dashboard.md` | Current state. Generated, not written by hand |
-| `decisions.md` | Every decision with a prediction and a review date |
-| `log.md` | Timeline of everything that happened |
-| `inbox.md` | Dump zone. Emptied weekly |
-| `departments/` | One folder per area of work — marketing, sales. What you tried, and where it's going |
-| `wiki/` | People, competitors, sources, playbooks |
-| `raw/` | Source documents you drop in |
-| `automations/` | Scripts that pull your real numbers. Empty until you add one |
-| `.mcp.json` | Live connections to outside tools. Ships empty |
-| `CLAUDE.md` | How the system works — and your rules for how Claude works |
-
-## Departments
-
-The root pages answer *how is the business doing*. `departments/` answers
-*what did we actually try, and did it work* — one folder per area you're
-spending real time on.
-
-```
-departments/
-  marketing/
-    direction.md          ← strategy across channels
-    ads/
-      direction.md        ← what's live, what's working, what's dead
-      experiments.md      ← every test, with a hypothesis and a read date
-    content/
-      direction.md
-      experiments.md
-  sales/
-    direction.md
-    experiments.md
+```bash
+git clone https://github.com/serop-ba/second-brain-template.git my-brain
+cd my-brain
+python3 brain.py serve        # opens the console, pre-filled with demo data (use `python` on Windows)
 ```
 
-Two files per unit, and they're the same split as the root: `direction.md` is
-**state** (always current, edited in place), `experiments.md` is **events**
-(append-only, never rewritten). Nothing new to learn as the repo grows.
+You'll see a fictional business so you know what a filled-in brain looks like. When you're ready for yours:
 
-Every experiment carries a **hypothesis** and a **read-on date** — the weekly
-loop hunts down any that are past due and still unjudged, and moves the finding
-into `direction.md` under *what's working* or *what's dead*. That last section
-is the one that pays for the whole folder: it's what stops you re-running a
-failed ad test in six months because it felt new again.
-
-An experiment is a test you run. A decision is a commitment you make.
-Experiments feed decisions; they don't replace them.
-
-Metrics are still defined **once**, in `company.md`, tagged with the department
-that owns them. Department numbers roll up into the same single `dashboard.md`
-— departments get a section there, never a dashboard of their own.
-
-Delete a department you aren't using. An empty folder reads as coverage when
-it's really neglect.
-
-## The idea
-
-**State vs events.** `company`, `goals`, `dashboard`, `wiki` and every
-`direction.md` are always current — edited in place. `log`, `decisions` and
-every `experiments.md` are append-only and never edited. Keeping those apart is
-what stops the whole thing turning into a pile.
-
-**Predictions are what make it learn.** A decision log that records what you
-decided is an archive. One that records *what you expected and when to check*
-teaches you something. Every entry in `decisions.md` carries both — and every
-experiment carries a hypothesis and a read date for the same reason.
-
-**One loop, weekly.** Empty the inbox → pull the data → read any experiment
-that's come due → rebuild the dashboard → check it against your bets → write
-one log entry. Everything else is on demand.
-
-**One dashboard.** A dashboard you have to visit four of is four dashboards.
-
-## Commands
-
-- `/init` — set it up (run once, first)
-- `/ingest` — turn a file in `raw/` into a note
-- "run the weekly loop" — the main rhythm
-- "log an experiment: I'm testing X" — starts a test with a read date
-- "add a department for support" — scaffolds a new unit
-- "lint the brain" — health check for staleness, contradictions, stalled bets,
-  and experiments nobody ever judged
-
-## Optional: automations
-
-`automations/` ships empty — a template script and setup instructions, no
-scripts. When you want your real numbers flowing into the dashboard, ask
-Claude: *"add an automation that pulls my Meta ad spend"* and it writes it,
-filed under the department that owns those numbers:
-
-```
-automations/scripts/marketing/meta_ads.py  →  Output/analytics/marketing/
+```bash
+claude                        # in the same folder; accept the "trust this folder" prompt the first time
+> /init
 ```
 
-Scripts route their own output by folder — there's nothing to configure.
-Needs Python; see [automations/README.md](automations/README.md).
+Claude removes the demo (only what the demo created), interviews you for about ten minutes, and files your real business. Then open the console again.
 
-## Optional: connections (MCP)
+## The loop
 
-`.mcp.json` is where you plug the brain into outside tools — Stripe, Notion,
-your ad platform, a database. It ships empty:
+| When | Do | Where |
+|---|---|---|
+| Any time | Capture a thought | Console, Activity, Inbox, or `python3 brain.py inbox add "..."` |
+| Something happened | `/record` a decision, a change or an experiment | Claude |
+| You have a document | `/ingest` it into notes | Claude |
+| Weekly | `/weekly`: inbox to zero, numbers, bets, decisions due, briefs, log entry | Claude, or the console's **Weekly loop** button |
+| A number should fill itself | `/connect` a tool (Stripe, YouTube, Meta Ads CSV, or anything with an API or export) | Claude |
+| Anything | Open the console and look | `python3 brain.py serve` |
 
-```json
-{
-  "mcpServers": {}
-}
+## What's in the box
+
+```
+brain.py            the command line: the one way Claude and you change the data
+data/brain.db       your business (gitignored; back it up)
+core/               the platform: database, rules, console, orbit map (standard library only)
+automations/        pullers that feed numbers in; csv-import ships installed
+catalog/            use-case packs (Stripe, YouTube, Meta Ads) and starter profiles (creator, service, SaaS, e-commerce)
+.claude/            the skills Claude uses (/init /weekly /record /ingest /connect /lint) and its guardrails
+CLAUDE.md           how Claude works in here
+docs/               GUIDE.md (make it yours), PROMPTS.md (copy-paste), ARCHITECTURE.md (how it works)
 ```
 
-Add one by asking Claude (*"connect this repo to Stripe over MCP"*), or by hand:
+## Why a database and not files
 
-```json
-{
-  "mcpServers": {
-    "stripe": {
-      "command": "npx",
-      "args": ["-y", "@stripe/mcp", "--tools=all"],
-      "env": { "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}" }
-    },
-    "notion": {
-      "type": "http",
-      "url": "https://mcp.notion.com/mcp"
-    }
-  }
-}
+- **Rules the system enforces, not rules you remember.** Past decisions and log entries can't be edited. A metric threshold must be a real band. A decision can't be logged without a prediction and a review date.
+- **History for everything.** Rewrite a note, change a bet, delete a metric: it's in the change history, with the old version, and one command restores it.
+- **Claude can't make a mess.** It changes data only through `brain.py`, which validates every write. A hook blocks it from touching the database any other way.
+- **Safe to hand to a team or a student.** One file to back up, nothing to keep in sync.
+
+## Your data
+
+```bash
+python3 brain.py backup               # a consistent copy in data/backups/ (the console also keeps one a day)
+python3 brain.py history              # who changed what
+python3 brain.py revert 42            # undo change 42
+python3 brain.py demo clear           # remove the demo, keep anything you added
+python3 brain.py export               # everything as JSON
 ```
 
-Restart Claude Code after editing; check with `/mcp`.
+## Migrating from the markdown version
 
-**This file is committed to git.** Never put a real key in it — use
-`${VAR}` and set the value in `automations/.env`, which is gitignored.
-
-Rule of thumb: a script in `automations/` for anything the weekly loop needs
-to run unattended, MCP for things worth asking about interactively. Doing both
-for the same data is one too many.
-
-Everything works without either of these.
+Had the earlier file-based second brain? `python3 tools/migrate_markdown.py /path/to/old-brain` brings it across (see `docs/GUIDE.md`). The old version is tagged `v1-markdown`.
 
 ## License
 
-MIT — use it, change it, ship it, sell what you build with it. No attribution
-required.
-
-## Notes
-
-- Works with [Obsidian](https://obsidian.md) — it's all plain markdown with
-  relative links.
-- Claude edits these files directly. Keep it in git so you can always see what
-  changed and roll back.
-- `CLAUDE.md` is meant to be edited. It's the config for how Claude behaves in
-  this repo — tone, rules, conventions. Change it as you learn what you want.
+MIT. Use it, change it, ship it, sell what you build with it.

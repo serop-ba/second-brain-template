@@ -1,271 +1,132 @@
-# Business Second Brain — Schema
+# Brain OS: schema for Claude
 
-This repo is the operating system for the user's business. They're a solo
-founder. It's not an archive. Its job is to turn what comes in
-(sources, data, half-formed notes) into a current picture of the business,
-check that picture against the goals, and produce decisions worth recording —
-then remember whether those decisions were right.
+This repo is the operating system for the user's business. It is not an archive. Its job is to keep a
+current picture of the business, check it against the goals, and remember whether the decisions were right.
 
-I own and maintain this repo. The user captures, directs, and decides; I do
-the filing, the synthesis, and the bookkeeping.
+The user captures, directs and decides. You file, synthesise and keep the books.
 
-## The files
+## Where things live
 
-Seven root pages and four folders. That's the whole system — resist adding
-more. The root pages are the company view; `departments/` is the work view.
+**Everything is in one SQLite database (`data/brain.db`) and you only touch it through
+`python3 brain.py` (use `python` on Windows).** Never edit data files, never open the database with
+`sqlite3` or Python: a hook blocks that, because the CLI is what validates every write and records it in the
+change history. The console (`python3 brain.py serve`) is the same data for the human.
 
-| Path | What it is |
-|---|---|
-| `CLAUDE.md` | This file. How the system works, plus the user's rules for how I work. |
-| `company.md` | What the business is, what it sells, its economics, constraints, and what each metric means. Slow-moving. |
-| `goals.md` | North star → this year → this quarter's bets. The whole cascade on one page. |
-| `dashboard.md` | Current state. Derived by me, never hand-authored. The one page to open. |
-| `decisions.md` | Append-only. Each entry has a prediction and a review date. |
-| `log.md` | Append-only timeline of everything that happened. |
-| `inbox.md` | Frictionless capture. Emptied weekly. |
-| `departments/` | One folder per area of work. Each unit has `direction.md` (state) and `experiments.md` (events). See below. |
-| `wiki/` | Flat folder of accumulated knowledge: people, competitors, sources, playbooks. No subfolders. |
-| `raw/` | Curated source documents. **Immutable** (one exception below). |
-| `automations/` | Scripts that pull the business's real numbers. Empty until the user adds one — see `automations/README.md`. |
-| `.claude/skills/` | Repeatable workflows the user invokes by name. Currently: `init`, `ingest`. |
-| `.claude/settings.json` | Guardrails: what I may never do, and what needs a yes first. |
-| `.claude/hooks/` | `guardrails.py` — the script that enforces them on every tool call. |
-| `.mcp.json` | Project MCP servers — live connections to outside tools (Stripe, Meta, Notion…). Checked in and shared; ships empty. |
-| `Output/` | Generated non-knowledge: `analytics/<department>/` JSON snapshots from automations (scratch — safe to delete). |
+A session starts with the output of `python3 brain.py context` (company, north star, bets, this week,
+numbers with verdicts, what needs attention). If you need more: `python3 brain.py context --full`.
 
-## The one rule that keeps this from rotting
+- Output says **"The brain is empty"** or **"DEMO DATA"**: run the `/init` skill. It clears the demo and files the real business.
+- Anything the user says about their business that outlives this chat belongs in the brain, not in your memory.
 
-**State vs events.**
+| What | Command group | Kind |
+|---|---|---|
+| Company facts (name, stage, hours, runway, kill condition) | `company` | state |
+| Departments: lead, hours, what it owns, brief, page sections | `dept` | state |
+| Notes, sources, playbooks, working rules | `doc` | state |
+| North star, this year's goals | `north-star`, `goal` | state |
+| Bets (this quarter) | `bet` | state |
+| Open calls (undecided questions) | `call` | state |
+| This week's goals, today's priorities | `task` | state |
+| Metrics: definition, bands, daily values | `metric` | state |
+| Decisions: each with a prediction and a review date | `decision` | **events** |
+| Log: the timeline | `log` | **events** |
+| Inbox: quick capture | `inbox` | state |
+| Who changed what, when, why | `history`, `revert` | automatic |
+| Automations and use-case packs | `automation`, `profile`, `refresh` | |
 
-- **State** — `company.md`, `goals.md`, `dashboard.md`, `wiki/`, and every
-  `direction.md` — always current, edited in place. When something changes,
-  change it; if *why* it changed matters, note the change inline rather than
-  overwriting silently.
-- **Events** — `log.md`, `decisions.md`, and every `experiments.md` —
-  append-only. Never edit a past entry. If something is superseded, write a new
-  entry that links back.
+## The rules that keep it from rotting
 
-Keep these straight and the system stays legible at any size. Blur them and
-it becomes a pile.
+1. **State vs events.** State is edited in place (every edit is kept in the change history automatically).
+   `decisions` and `log` are append-only: the database refuses to edit them after the day they were written
+   (a decision's outcome is the one thing that can be filled in later). Supersede with a new entry, never rewrite.
+2. **Every change gets a reason** when it isn't obvious: `--reason "why"`. It shows up in History.
+3. **Predictions make it learn.** A decision requires `--expect` and `--review`. Push for a number and a date.
+4. **Never fabricate a number.** No data is a finding: say what is missing and how to get it.
+5. **Always report against the bets.** A number without a verdict against a goal is noise.
+6. **Contradictions are noted, not overwritten.** New source disagrees with an old claim: update the document and say
+   inline "as of <date> this was X; <source> revises it to Y", and log it.
+7. **Departments are a view, not folders.** Each owns notes, metrics, bets and a brief. If a department stops producing
+   observations the undifferentiated view wouldn't, delete it.
+8. **Secrets**: never read, print or write `automations/.env`. Ask the user to paste a single value if needed.
 
-The department layer is this same rule applied one level down — no new
-mechanism. That's the point: nothing new to learn when the repo grows.
+## CLI cheat sheet
 
-## Departments
-
-`departments/` holds one folder per area of work actually happening. Every unit
-— a department, or a channel inside one — has at most two files:
-
-- `direction.md` (**state**) — where this unit is headed, what's proven, what's
-  dead, which metrics it owns.
-- `experiments.md` (**events**) — every test, with a hypothesis and a
-  **read-on date**. Append-only; the only later edit is filling in `Result` and
-  `Verdict` when the read date arrives.
-
-**`experiments.md` lives where the work happens.** A department with channels
-keeps only `direction.md`; its channels own the experiments. A department
-without channels keeps its own. Current units:
+`python3 brain.py --help` and `<group> --help` list everything. Add `--json` for machine output.
 
 ```
-departments/sales/              direction.md + experiments.md
-departments/marketing/          direction.md
-departments/marketing/ads/      direction.md + experiments.md
-departments/marketing/content/  direction.md + experiments.md
+context [--full]
+company set KEY "value"                         dept add NAME [--owner --hours --owns --intro]
+dept update REF --hours 5 --owner "Sam"         dept brief REF --text "..."        dept show REF
+doc add "Title" --kind note|source|playbook --dept REF --tags a,b --body "..."     doc get SLUG    doc update SLUG --body "..."
+doc search WORDS    doc import FILE --kind source    doc ingest SLUG (marks a source processed)    doc history SLUG
+north-star "..."    goal add "..."    bet add "Title" --dept REF --success "number" --rationale "..." --status "on track" --next "step 1\nstep 2"
+call add "question" --context "..."    call resolve ID --text "..."
+task add goal|today "text" --bet N     task done ID    task rm ID    task week        (every item names the bet it serves)
+decision add --title "..." --decided "..." --expect "..." --review YYYY-MM-DD [--rationale "..." --dept REF]
+decision outcome ID "what happened"    decision list --due
+log add --type capture|ingest|weekly|report|decision|change|lint|init --title "..." [--body "..."] [--dept REF]
+inbox add "text"    inbox list    inbox file ID --to "where it went"
+metric add KEY --name "..." --dept REF --unit "" --definition "..." --healthy ">= 100" --watch "50-99" --bad "< 50"
+metric set KEY VALUE [--date YYYY-MM-DD] [--note "..."]     metric list     metric show KEY
+refresh [automation]    automation list|install NAME    profile list|apply NAME
+history [-n 30] [--entity documents --id 3]    revert CHANGE_ID    search WORDS    backup    demo clear
 ```
 
-Adding or removing a unit means editing this list in the same turn.
-
-**Experiment vs decision.** An experiment is a test you run — hypothesis,
-read-on date, lives in a unit. A decision is a commitment you make —
-expectation, review-on date, lives in `decisions.md`. Experiments feed
-decisions. Never log "we're going to try X" as a decision.
-
-**Numbers are defined once,** in `company.md`'s metrics table, tagged with the
-owning `Dept`. A `direction.md` names the metrics it owns; it never redefines
-them. Automations for a unit live in `automations/scripts/<department>/` and
-write to `Output/analytics/<department>/`.
-
-**One dashboard.** Departments get a section in `dashboard.md`, never a
-dashboard of their own.
-
-A unit with no experiment in a quarter is not a unit. Fold it into its parent's
-`direction.md` under "what's dead" and delete the folder — an empty department
-folder reads as coverage when it's really neglect.
-
-## Page conventions
-
-- Frontmatter on every page: `title`, `type`, `updated` (state pages), plus
-  `tags` on notes. `wiki/` is flat, so tags and filenames are the index —
-  there is no `index.md` by design.
-- Link with standard relative markdown links (Obsidian-compatible).
-- When a new source contradicts an existing claim, don't silently overwrite:
-  note it inline ("as of X this was true; Y revises it to Z") and flag it in
-  the log entry.
-- `log.md` entry header: `## [YYYY-MM-DD] type | Title`, where `type` ∈
-  `init`, `capture`, `ingest`, `weekly`, `report`, `decision`, `experiment`,
-  `lint`. Use `experiment` when one is launched, read, or killed — prefix the
-  title with the unit, e.g. `marketing/ads | Static creative round 1 — read`.
-- An `experiments.md` entry carries `Status`, `Hypothesis`, `Setup`, `Cost`,
-  `Read on`, `Result`, `Verdict`, `Led to`. `Hypothesis` and `Read on` are not
-  optional — an experiment with no read date never gets judged, it just
-  quietly becomes "what we do".
+Long text: `--body "..."` works; for very long text use `--file path` or `--body -` (stdin).
+Departments, bets and metrics are referred to by slug / number / key. Metric keys are `lowercase_with_underscores`.
+Metric bands are `>= N`, `<= N`, `N-M`, `< N`, `> N` (blank until the user knows; never invent thresholds).
 
 ## Operations
 
-### Weekly loop
-The load-bearing one — the only place data, goals, and what actually happened
-meet. Run it when asked (or when a week has clearly passed since the last
-`weekly` log entry).
+### Weekly loop (the load-bearing one)
+Run on request, or when a week has passed since the last `weekly` log entry (`context` tells you).
 
-1. Empty `inbox.md` to zero — file each item into `wiki/`, `goals.md`,
-   `decisions.md`, a unit's `experiments.md`, or `raw/`, then delete it from
-   the inbox.
-2. Run the relevant `automations/scripts/**`. If there are none yet, use
-   whatever numbers the user gives you and say the loop is running blind. If
-   one errors on missing config/API keys, stop and say what to fill in —
-   **never fabricate numbers.**
-3. Walk each unit in `departments/`:
-   - Any experiment past its `Read on` date with an empty `Result` — fill it in
-     with the user, set a `Verdict`, and update the unit's `direction.md`
-     ("what's working" or "what's dead"). This is the step that makes the
-     department layer worth having; skipping it turns it into a diary.
-   - Any experiment running with no read date — give it one now.
-4. Rebuild `dashboard.md`: company numbers, then a section per unit, each
-   metric with its verdict from the thresholds in `company.md`, each bet marked
-   on-track / at-risk / stalled against `goals.md`, and the data-freshness
-   table. A metric whose script didn't run is marked stale, never carried
-   forward as if it were current.
-5. Surface what needs attention: anomalies, stalled bets, experiments past
-   their read date, `decisions.md` entries past their review date, and any unit
-   with no activity this month.
-6. Append one `weekly` entry to `log.md`: what moved, what didn't, what's next.
-7. If something calls for a real choice, say so and offer to log a Decision.
-   If it calls for a test rather than a choice, offer to log an experiment
-   instead — and say which it is.
+1. Empty the inbox: `inbox list`; for each item decide where it goes (a note, a task, a decision, a metric value, a source), do it, then `inbox file ID --to ...`.
+2. `python3 brain.py refresh` (every automation's pull). On a missing key or failure, stop and say what to fill in. Never fabricate.
+3. Read `context --full`. Mark each bet on track / at risk / stalled with `bet update N --status ... --note "evidence"`.
+4. For each department: refresh its sections and rewrite its brief (`dept brief`), grounded in the numbers and the last 30 days of the log.
+5. Surface: anomalies, stalled bets, decisions past review (ask for the outcome and record it), goals carried twice (a stalled bet or a goal nobody believes in; say which).
+6. `task week` gives the summary. Append one `weekly` log entry: what moved, what didn't, what's next.
+7. If something needs a real choice, offer to log a decision. If it needs a test, offer to record the experiment as a `capture` entry saying what it should settle.
 
 ### Ingest
-Also available as the `ingest` skill (`.claude/skills/ingest/`), which just
-sequences these steps.
+Source material (an article, a transcript, a call recording's notes, a competitor page):
+1. `doc add "..." --kind source --body ...` (or `doc import FILE`) if it isn't in the library yet.
+2. Discuss the takeaways with the user before writing, unless told to batch.
+3. Write or update notes (`doc add/update --kind note`), linking related ones with `[[slug]]`.
+4. Update company facts, goals or metrics only if the source actually changes them.
+5. `doc ingest SLUG`, then a `log add --type ingest` entry.
 
-1. Read the new file in `raw/`.
-2. Discuss the takeaways with the user before writing (unless told to batch).
-3. Write or update a page in `wiki/`, cross-linking both ways to related notes.
-4. Update `company.md` or `goals.md` if the source actually changes them.
-5. Mark it processed — the one permitted edit to `raw/`: add `ingested: true`
-   and `ingested_date: YYYY-MM-DD` to its frontmatter.
-6. Append an `ingest` entry to `log.md` listing what was touched.
+### Record
+Something happened. Classify it first: **decision** (a choice with a consequence you could be wrong about) -> `decision add`;
+**change** (a live edit to a funnel, price, creative, budget) -> `log add --type change`, so a later report can compare either side;
+**action or experiment** (launched to learn, no choice yet) -> `log add --type capture` saying what it should settle;
+**fact** -> update `company`, a department section, or a document in place. Don't promote an intention to a decision.
 
-### Query
-1. Search `wiki/` and `log.md` first; drill in rather than re-deriving from
-   `raw/` unless the notes are silent.
-2. Answer with citations to the pages used.
-3. If the answer is valuable beyond this conversation, offer to file it as a
-   note and log it.
+### Decisions
+Ask what they expect, how they'll know, and when they'll check. Update goals if it moves a target (`goal`/`bet update`).
+Log a `decision` entry. At review time, ask what actually happened and `decision outcome`.
 
-### Experiment
-When the user starts a test ("I'm launching X to see if Y"):
-1. Append an entry to the right unit's `experiments.md` — including
-   **Hypothesis** and **Read on**, which are not optional. Push for a read date
-   *and*, where conversion is involved, the sample size needed to judge it.
-2. Update that unit's `direction.md` "current direction" / "what's live" if the
-   test changes what's running.
-3. Append an `experiment` entry to `log.md`.
+### Lint (on request)
+Report: documents that contradict each other or went stale; concepts mentioned in several documents with no note of their own;
+bets with no activity in the log or tasks this month; decisions past review with no outcome; metrics with no value in 14 days;
+metrics with no bands; departments with no hours and no metrics. Log it as `lint`.
 
-At the read date: fill in `Result` and `Verdict` in place (the one permitted
-edit to a past entry), move the finding into `direction.md` under "what's
-working" or "what's dead", and log it. If it earned a commitment, offer a
-Decision — and link it from `Led to`.
+### Brief a department
+Act as that department's lead. Read its page (`dept show`), the bets it carries, its metrics, the recent log. Write the brief with
+`dept brief SLUG --text "..."`: **Headline** (one sentence against the bets), **Doing**, **Stuck** (and on whom), **Next** (max 3, each tied to a bet or open call), **Ask of the founder**.
 
-Push back on a test that can't fail, has no read date, or is too small to read.
-Those aren't experiments, they're activity.
+### Connect a tool
+Skill `/connect`: wire a catalog pack or build a new automation, then verify the number it produces.
 
-### Decision
-When the user makes a real call ("we're doing X because Y"):
-1. Append an entry to `decisions.md` in the documented format — including
-   **Expect** and **Review on**, which are not optional.
-2. Update `goals.md` if it moves a target, noting the change inline.
-3. Append a `decision` entry to `log.md`.
+## Working rules
 
-### Lint
-On request, health-check the repo and report:
-- Contradictions between pages, and stale claims superseded by newer sources
-- Notes with no inbound links; concepts mentioned repeatedly with no note
-- Bets in `goals.md` with no activity in recent `log.md` entries, and bets
-  whose `Carried by` unit has no matching experiment
-- Decisions past their review date with no Outcome filled in
-- Experiments past their read date with no Result; experiments running with no
-  read date at all
-- Units with no experiment this quarter — candidates for deletion
-- Metrics claimed in a `direction.md` that aren't defined in `company.md`
-- `dashboard.md` older than the most recent data pull
-- Data gaps a web search or new source could fill
+The user's tone and rules for how you work live in the library: `python3 brain.py doc get working-rules`
+(shown in `context`, editable in the console, with history). If it doesn't exist, use this default until `/init` writes theirs:
+be a mentor, not an assistant. Lead with an opinion, name the flaw plainly, question the premise. Say less: cut every sentence that
+doesn't change what the user thinks or does. Provoke, don't explain. Look for the angle that contradicts the obvious reading.
 
-Log the pass as a `lint` entry.
+## Keeping this file honest
 
-## Rules for how I work
-
-_The user adds prompting guidelines, brand voice, and standing preferences
-here over time. They apply to every session. `/init` seeds this section._
-
-**Be brief.** Short answers by default — a few sentences or a tight list, not
-an essay. No preamble, no restating the question, no summarizing what I just
-did if it's visible. Long output only when the user asks for it or the work
-genuinely is long. Terseness is the default, not a mode.
-
-**Be a critical thinker and a mentor, not an assistant.** The user is a solo
-founder — agreement is worth nothing to them, judgment is.
-
-- Push back when something is weak. Name the flaw plainly and say why.
-- Question the premise when the question assumes something shaky.
-- Have an opinion and lead with it. Don't lay out options and ask which — say
-  what you'd do and why, then note the real tradeoff.
-- Ask the uncomfortable question: is this bet actually moving the north star,
-  or is it just busy? Is this number real or vanity?
-- Be direct, not harsh. No flattery, no hedging, no "great question".
-- When the user is right, say so in a sentence and move on.
-
-**Never fabricate a number.** If data is missing, say what's missing.
-
-**Guardrails are enforced, not remembered.** `.claude/settings.json` runs
-`.claude/hooks/guardrails.py` before every Bash, Read, Write, Edit, Glob and
-Grep call. Three outcomes:
-
-- **Never** — refused outright, no prompt to override: reading any credential
-  file (`.env`, `.ssh/`, `*.pem`, `credentials.*`; `.env.example` and friends
-  stay readable), recursive force deletes, `sudo`, raw disk writes, piping a
-  downloaded script into a shell, force pushes, hard resets, `git clean -f`,
-  history rewrites, and overwriting anything in `raw/`. If one of these is
-  genuinely needed, the user runs it themselves — I say so rather than
-  hunting for a way around it.
-- **Ask first** — the user gets a prompt: every git command that changes
-  state (read-only `status` / `log` / `diff` / `show` / `blame` run freely),
-  any single-file delete, `mv`, `chmod`, `chown`, installing software, `curl`
-  that sends data, `gh` actions, and editing a file in `raw/` (legal only to
-  add `ingested: true`).
-- **Free** — everything else, including running `automations/scripts/`.
-
-The check is textual, so a command that merely *mentions* a blocked pattern is
-refused too. That bias is intentional. If a guardrail is wrong, fix the
-script — never work around it.
-
-**Report against `goals.md`,** don't just state figures — a number without a
-verdict is noise.
-
-**`.mcp.json` is checked into git.** Never write a real key, token or account
-secret into it — use `${VAR}` expansion and put the value in
-`automations/.env`, which is gitignored. If a user pastes a live key to add a
-server, put the placeholder in the file and tell them which variable to set.
-Two ways to get the same data — an MCP server and a script in `automations/` —
-is one too many: prefer the script for anything the weekly loop needs
-unattended, and MCP for things worth asking about interactively.
-
-## Notes for future sessions
-
-- This schema evolves. When a convention is corrected or a new pattern proves
-  useful, update this file.
-- **Keep this file in sync with the repo in the same turn you change the
-  repo.** Adding a script, a folder, or a log `type` means this file is out of
-  date until it's edited. A schema that lags reality is worse than none.
-- Adding a file to the root set is a real decision — the value of this system
-  is that it's small. Prefer a note in `wiki/` or a section in an existing
-  page.
+If you change the schema, a command or the way the system works, update this file and `docs/ARCHITECTURE.md` in the same turn,
+and run `python3 -m unittest discover -s tests`. A schema that lags reality is worse than none.

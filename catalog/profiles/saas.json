@@ -1,0 +1,19 @@
+{
+  "label": "SaaS / software product",
+  "description": "A subscription product: signups, activation, retention, MRR.",
+  "departments": [
+    {"name": "Marketing", "owns": "Acquisition: content, SEO, ads, launches", "intro": "Bring the right people to the product."},
+    {"name": "Product", "owns": "What gets built and how people experience it", "intro": "Make activation and retention better."},
+    {"name": "Customer", "owns": "Support, onboarding, feedback and churn reasons", "intro": "Keep customers and learn why they leave."},
+    {"name": "Finance", "owns": "Revenue, costs, pricing and runway", "intro": "Stay alive long enough to find fit."}
+  ],
+  "metrics": [
+    {"key": "visitors", "name": "Weekly visitors", "department": "marketing", "unit": "visitors", "definition": "Unique visitors to the marketing site per week."},
+    {"key": "signups", "name": "Signups", "department": "marketing", "unit": "signups", "definition": "New accounts per week."},
+    {"key": "activation_rate", "name": "Activation rate", "department": "product", "unit": "%", "definition": "Share of new signups who reach the first moment of value. Define the moment in this definition."},
+    {"key": "paying_customers", "name": "Paying customers", "department": "customer", "unit": "customers", "definition": "Accounts on a paid plan."},
+    {"key": "churn_rate", "name": "Monthly churn", "department": "customer", "unit": "%", "definition": "Share of paying customers who cancelled this month."},
+    {"key": "mrr", "name": "MRR", "department": "finance", "unit": "", "definition": "Monthly recurring revenue, net of tax."},
+    {"key": "cash_in_bank", "name": "Cash in bank", "department": "finance", "unit": "", "definition": "Balance. Runway in months = this / monthly burn."}
+  ]
+}

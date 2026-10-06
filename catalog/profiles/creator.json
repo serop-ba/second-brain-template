@@ -1,0 +1,19 @@
+{
+  "label": "Creator / education business",
+  "description": "A channel or newsletter that brings an audience in, and a course, community or membership that earns.",
+  "departments": [
+    {"name": "Marketing", "owns": "Content, distribution and lead capture: everything that brings strangers in", "intro": "Turn attention into people who join the list or the community."},
+    {"name": "Sales", "owns": "Turning an audience member into a paying customer: the offer, the page, the follow-up", "intro": "Convert free to paid."},
+    {"name": "Product", "owns": "The course, community or membership itself", "intro": "Make what people paid for worth it."},
+    {"name": "Customer", "owns": "Feedback, retention and support", "intro": "Find out why people stay or leave."},
+    {"name": "Finance", "owns": "Revenue, expenses, pricing and the monthly close", "intro": "Know whether it makes money."}
+  ],
+  "metrics": [
+    {"key": "audience_size", "name": "Audience size", "department": "marketing", "unit": "people", "definition": "Followers or subscribers on the main channel. Cumulative: read the change."},
+    {"key": "email_subscribers", "name": "Email subscribers", "department": "marketing", "unit": "subs", "definition": "People you can email. The audience you own."},
+    {"key": "paying_members", "name": "Paying customers", "department": "sales", "unit": "people", "definition": "People currently paying for your offer."},
+    {"key": "mrr", "name": "MRR", "department": "finance", "unit": "", "definition": "Recurring revenue this month, net of tax, cash basis."},
+    {"key": "monthly_revenue", "name": "Monthly revenue", "department": "finance", "unit": "", "definition": "Everything collected this month: recurring plus one-time sales."},
+    {"key": "monthly_expenses", "name": "Monthly expenses", "department": "finance", "unit": "", "definition": "Everything paid out this month: tools, ads, contractors."}
+  ]
+}

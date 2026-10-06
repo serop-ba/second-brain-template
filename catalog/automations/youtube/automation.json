@@ -1,0 +1,17 @@
+{
+  "label": "YouTube channel",
+  "description": "Subscribers, lifetime views and video count for your channel, pulled from the YouTube Data API. Free; needs an API key.",
+  "order": 20,
+  "department": "marketing",
+  "env": ["YOUTUBE_API_KEY", "YOUTUBE_CHANNEL_ID"],
+  "metrics": [
+    {"key": "youtube_subscribers", "name": "YouTube subscribers", "unit": "subs", "definition": "Channel subscribers. Cumulative: read the change over time, not the total."},
+    {"key": "youtube_views", "name": "YouTube views", "unit": "views", "definition": "Lifetime channel views. Cumulative: a threshold on the total is meaningless, watch the weekly change."},
+    {"key": "youtube_videos", "name": "YouTube videos", "unit": "videos", "definition": "Public videos on the channel."}
+  ],
+  "pull": [{"label": "Channel stats", "run": "pull.py"}],
+  "jobs": [
+    {"key": "youtube_insights", "label": "YouTube insights", "note": "Claude reads the history and writes what it says (and what it can't).", "kind": "claude",
+     "prompt": "Read the history of the YouTube metrics with `python3 brain.py metric show youtube_subscribers` and the same for youtube_views. Write a short, honest read of the trend: growth per week, any change in pace, and what you cannot conclude from so few data points. File it with `python3 brain.py doc add \"YouTube trend read\" --kind note --dept marketing --tags youtube --body \"...\"` (or `doc update youtube-trend-read` if it exists), then log it with `python3 brain.py log add --type report --title \"YouTube trend read\"`. Never invent a number."}
+  ]
+}

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain OS</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><span class="glyph" aria-hidden="true"><i></i><b></b></span><span><span id="company">Brain OS</span><small>brain os · online</small></span></div>
+  <nav>
+    <div class="grp">Company</div>
+    <button class="nav-i on" data-tab="dashboard">Overview</button>
+    <button class="nav-i" data-tab="company">Company</button>
+    <button class="nav-i" data-tab="library">Library</button>
+    <button class="nav-i" data-tab="activity">Activity <span class="nh" id="nav-inbox"></span></button>
+    <div class="grp">Departments</div>
+    <div id="nav-depts"></div>
+    <div class="grp">System</div>
+    <button class="nav-i" data-tab="automations">Automations <span class="live" id="live" hidden></span></button>
+  </nav>
+</aside>
+<div class="wrap">
+  <header>
+    <h1 id="page-title">Overview</h1>
+    <span class="when" id="when"></span>
+    <div class="chips" id="chips"></div>
+  </header>
+
+  <!-- ============================================================ Overview -->
+  <main id="tab-dashboard" class="grid">
+    <div class="s12" id="top-banners"></div>
+
+    <section class="card s12 hero">
+      <div class="orbit" id="orbit">
+        <div class="o-bar">
+          <div class="seg o-seg"><button data-o-view="orbit">3D Orbit</button><button data-o-view="rings">Rings</button></div>
+          <span class="o-stats" data-o="stats"></span>
+          <span class="sp"></span>
+          <button class="o-btn" data-o="names">names</button><button class="o-btn" data-o="motion">motion</button>
+          <button class="o-btn" data-o="fit" title="Reset the view (or double-click the map)">fit</button><button class="o-btn" data-o="full" title="Full screen, scroll to zoom">full</button>
+        </div>
+        <div class="o-filters o-depts"></div>
+        <div class="o-filters o-kinds"></div>
+        <canvas aria-label="The business as an orbit map: departments as planets, their documents, metrics and decisions as moons"></canvas>
+        <div class="o-tip" hidden></div>
+        <div class="o-hud">
+          <div class="lbl">North star</div>
+          <div class="star">
+            <div class="big hov"><span id="star"></span> <button class="ic" data-act="north-star" title="Edit the north star">✎</button></div>
+            <div class="year hov"><span id="year"></span><button class="ic" data-act="year-goal" title="Add a goal for this year">+</button></div>
+          </div>
+        </div>
+        <div class="o-hint">drag to rotate · click a planet to open it</div>
+      </div>
+    </section>
+
+    <section class="card s12">
+      <h2>Departments <span class="sub">one lead each · Claude briefs them</span><span class="sp"></span>
+        <button class="b ghost" data-act="dept-add">+ Add</button><button class="b ghost" data-run="areas">✦ Brief every department</button></h2>
+      <div class="depts" id="depts"></div>
+    </section>
+
+    <section class="card s4">
+      <h2>Today <span class="sub" id="today-date"></span><span class="sp"></span><button class="b ghost" data-run="plan_day">✦ Plan my day</button></h2>
+      <div id="today-banner"></div>
+      <ul class="checks" id="today"></ul>
+      <form class="add" data-kind="today"><input type="text" placeholder="Add a priority…"><select></select></form>
+      <h3>Done this week</h3>
+      <ul class="checks" id="done"></ul>
+      <div id="history"></div>
+    </section>
+
+    <section class="card s4">
+      <h2>This week <span class="sub" id="week-label"></span><span class="sp"></span><button class="b ghost" data-run="plan_week">✦ Plan my week</button></h2>
+      <div id="week-banner"></div>
+      <div class="small muted" id="week-progress"></div>
+      <div class="bar"><i id="week-bar"></i></div>
+      <ul class="checks" id="goals"></ul>
+      <form class="add" data-kind="goal"><input type="text" placeholder="Add a weekly goal…"><select></select></form>
+    </section>
+
+    <section class="card s4">
+      <h2>Bets <span class="sp"></span><button class="b ghost" data-act="bet-add">+ Add</button></h2>
+      <div id="bets"></div>
+    </section>
+
+    <section class="card s8">
+      <h2>Numbers <span class="sub" id="num-updated"></span><span class="sp"></span>
+        <button class="b ghost" data-act="metric-add">+ Metric</button><button class="b ghost" data-act="point-add">+ Log a value</button><button class="b ghost" data-run="refresh">↻ Refresh</button></h2>
+      <div id="num-banner"></div>
+      <div class="metrics" id="numbers"></div>
+    </section>
+
+    <section class="card s4">
+      <h2>Decisions <span class="sp"></span><button class="b ghost" data-act="decision-add">+ Log one</button></h2>
+      <div id="decisions"></div>
+    </section>
+  </main>
+
+  <!-- ============================================================ Company -->
+  <main id="tab-company" class="grid" hidden>
+    <section class="card s6">
+      <h2>The business <span class="sp"></span><button class="b ghost" data-act="fact-add">+ Add a fact</button></h2>
+      <div id="profile"></div>
+    </section>
+    <section class="card s6">
+      <h2>Direction <span class="sp"></span><button class="b ghost" data-act="north-star">✎ North star</button><button class="b ghost" data-act="year-goal">+ Goal</button></h2>
+      <div id="direction"></div>
+    </section>
+    <section class="card s12">
+      <h2>Open calls <span class="sub">questions not decided yet</span><span class="sp"></span><button class="b ghost" data-act="call-add">+ Add</button></h2>
+      <div id="calls"></div>
+    </section>
+  </main>
+
+  <!-- ============================================================ Library -->
+  <main id="tab-library" class="grid" hidden>
+    <section class="card s12">
+      <h2>Library <span class="sub">notes, sources and playbooks · every edit keeps its history</span><span class="sp"></span><button class="b" data-act="doc-add">+ New document</button></h2>
+      <div class="libbar"><input type="text" id="lib-q" placeholder="Search everything…"><div class="seg" id="lib-kind"></div></div>
+      <div id="lib-results"></div>
+      <ul class="notes-list" id="lib-list"></ul>
+    </section>
+  </main>
+
+  <!-- ============================================================ Activity -->
+  <main id="tab-activity" class="grid" hidden>
+    <section class="card s4">
+      <h2>Inbox <span class="sub" id="inbox-count"></span><span class="sp"></span><button class="b ghost" data-run="inbox">✦ File them all</button></h2>
+      <form class="add" id="capture" style="margin:0 0 8px"><input type="text" placeholder="Capture anything. It's filed in the weekly loop"><button class="b">Add</button></form>
+      <ul class="checks small" id="inbox"></ul>
+    </section>
+    <section class="card s8">
+      <h2>Log <span class="sub" id="log-count">append-only</span><span class="sp"></span><button class="b ghost" data-act="log-add">+ Entry</button></h2>
+      <ul class="feed" id="feed"></ul>
+    </section>
+    <section class="card s12">
+      <h2>Change history <span class="sub">every edit: who, when, why, with undo</span></h2>
+      <div class="libbar"><div class="seg" id="chg-actor"></div></div>
+      <div id="changes"></div>
+    </section>
+  </main>
+
+  <main id="tab-area" class="grid" hidden></main>
+
+  <!-- ============================================================ Automations -->
+  <main id="tab-automations" class="grid" hidden>
+    <div class="s5" style="display:grid;gap:14px">
+      <section class="card"><h2>Ask Claude</h2>
+        <form class="ask" id="ask"><textarea rows="2" placeholder="e.g. Is anything I did this week actually moving Bet 1?"></textarea><button class="b primary">Ask</button></form></section>
+      <section class="card"><h2>Claude <span class="sub">runs here, output on the right</span></h2><div id="run-claude"></div></section>
+      <section class="card"><h2>Core</h2><div id="run-scripts"></div><div id="schedule"></div></section>
+      <section class="card"><h2>In a terminal <span class="sub">for anything that needs a conversation</span></h2><div id="run-term"></div></section>
+      <div class="grp-h">Installed <span class="sub">one folder each in automations/</span></div>
+      <div id="auto-cards" style="display:grid;gap:14px"></div>
+      <div class="grp-h">Use-case catalog <span class="sub">install a pack, then connect it</span></div>
+      <section class="card"><div id="catalog"></div></section>
+      <section class="card"><h2>Your data</h2><div id="data"></div></section>
+    </div>
+    <div class="s7 sticky" style="display:grid;gap:14px">
+      <section class="card"><h2>Output <span class="sp"></span><button class="b ghost" id="stop" hidden>■ Stop</button></h2>
+        <div class="pills" id="pills"></div>
+        <div class="console" id="console"><span class="dim">Nothing run yet. Pick a job on the left.</span></div></section>
+      <section class="card"><h2>Recent runs</h2><div id="run-history"></div></section>
+    </div>
+  </main>
+</div>
+</div>
+<div id="toast"></div>
+<dialog id="modal">
+  <div class="mh"><span id="mtitle"></span><button class="ic" id="mclose" title="Close">✕</button></div>
+  <div class="mb" id="mbody"></div>
+  <div class="merr" id="merr"></div>
+  <div class="mf" id="mfoot"></div>
+</dialog>
+
+<script>const TOKEN = "__TOKEN__";</script>
+<script src="/static/app.js"></script>
+<script src="/static/orbit.js"></script>
+<script>boot(); Orbit.mount(document.getElementById("orbit"));</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "label": "Service business / consultancy / agency",
+  "description": "You sell your own time or a productised service to clients: audits, retainers, projects.",
+  "departments": [
+    {"name": "Marketing", "owns": "How strangers find you: content, outreach, referrals, case studies", "intro": "Fill the pipeline with people who fit."},
+    {"name": "Sales", "owns": "Discovery calls, proposals and closing", "intro": "Turn conversations into signed work."},
+    {"name": "Delivery", "owns": "Doing the work and keeping clients happy", "intro": "Deliver results in fewer hours per client."},
+    {"name": "Finance", "owns": "Invoicing, expenses, cash and pricing", "intro": "Get paid on time and know your margin."}
+  ],
+  "metrics": [
+    {"key": "qualified_leads", "name": "Qualified leads", "department": "marketing", "unit": "leads", "definition": "People who fit your ideal client and asked to talk, per week."},
+    {"key": "calls_booked", "name": "Discovery calls booked", "department": "sales", "unit": "calls", "definition": "Calls on the calendar this week."},
+    {"key": "close_rate", "name": "Close rate", "department": "sales", "unit": "%", "definition": "Share of proposals or audits that became paid work. Small n: read as a hint."},
+    {"key": "active_clients", "name": "Active clients", "department": "delivery", "unit": "clients", "definition": "Clients with work in progress or a live retainer."},
+    {"key": "mrr", "name": "MRR", "department": "finance", "unit": "", "definition": "Recurring retainer revenue this month, net of tax."},
+    {"key": "cash_in_bank", "name": "Cash in bank", "department": "finance", "unit": "", "definition": "Business account balance. Months of runway = this / monthly expenses."},
+    {"key": "monthly_expenses", "name": "Monthly expenses", "department": "finance", "unit": "", "definition": "Everything paid out this month."}
+  ]
+}

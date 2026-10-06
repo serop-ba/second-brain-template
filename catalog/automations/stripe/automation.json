@@ -1,0 +1,13 @@
+{
+  "label": "Stripe revenue",
+  "description": "MRR, active subscriptions and the last 30 days of revenue from Stripe. Read-only: use a restricted key.",
+  "order": 10,
+  "department": "finance",
+  "env": ["STRIPE_API_KEY"],
+  "metrics": [
+    {"key": "stripe_mrr", "name": "MRR (Stripe)", "unit": "", "definition": "Active subscriptions normalised to a month (yearly / 12, weekly x 4.33). In your Stripe currency, before tax. Excludes one-time charges."},
+    {"key": "stripe_active_subscriptions", "name": "Active subscriptions", "unit": "subs", "definition": "Subscriptions with status active."},
+    {"key": "stripe_revenue_30d", "name": "Revenue, last 30 days (Stripe)", "unit": "", "definition": "Successful charges in the last 30 days minus refunds, in your Stripe currency."}
+  ],
+  "pull": [{"label": "Revenue and subscriptions", "run": "pull.py"}]
+}

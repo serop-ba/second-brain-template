@@ -1,7 +1,17 @@
 .DS_Store
 .obsidian/
+__pycache__/
+*.pyc
 
-automations/.venv/
+# Your business lives in data/brain.db. It's yours: back it up (python3 brain.py backup), don't commit it.
+data/
+
+# Secrets and private exports
 automations/.env
-Output/analytics/*.json
-Output/analytics/**/*.json
+automations/.venv/
+automations/*/exports/*.csv
+automations/csv-import/inbox/*
+!automations/csv-import/inbox/.gitkeep
+automations/csv-import/done/
+
+.playwright-mcp/

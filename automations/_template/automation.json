@@ -1,0 +1,12 @@
+{
+  "label": "My automation",
+  "description": "One line: what it pulls, and which metric it feeds.",
+  "order": 60,
+  "department": "marketing",
+  "env": ["MY_API_KEY"],
+  "metrics": [
+    {"key": "my_metric", "name": "My metric", "unit": "", "definition": "What exactly is counted."}
+  ],
+  "pull": [{"label": "My automation", "run": "pull.py"}],
+  "jobs": []
+}

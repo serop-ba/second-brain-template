@@ -1,77 +1,44 @@
 # Automations
 
-Empty on purpose. This is where scripts that pull your real numbers live —
-channel stats, revenue, ad spend, whatever your business actually runs on.
+An automation is a folder here with an `automation.json` and a script. It gets numbers from somewhere (an API, a CSV export, a database) and hands them to the brain. Delete the folder and it's gone; the metrics and their history stay.
 
-Once a script exists here, the weekly loop runs it and its output lands in
-`../dashboard.md`. Until then, everything else in the brain works fine without
-it — fill in `company.md` and `goals.md` first and come back to this.
+```
+automations/
+  csv-import/    ships installed: drop a CSV (metric,date,value) in inbox/ and refresh
+  _template/     copy this to start a new one (folders starting with _ are ignored)
+  .env           your secrets (gitignored). Copy .env.example to create it
+```
 
-## Setup (one time)
+## The contract
 
-Needs Python 3.9+. Check with `python3 --version`; if that fails, install it
-from [python.org](https://www.python.org/downloads/) or `brew install python`
-on a Mac.
+A pull is any script that prints JSON to stdout:
+
+```json
+{"points": [{"metric": "mrr", "value": 1200, "date": "2026-10-05"}]}
+```
+
+`metric` is the key of a metric that already exists. `date` is optional (today). The refresh records each point as that day's value, in the audited database, with the automation's name as the source. A failed pull never overwrites anything: the metric keeps its last real value and the dashboard says when it last updated.
+
+## Use-case packs
+
+`catalog/automations/` holds ready-made packs (YouTube, Stripe, Meta Ads CSV). Install one:
 
 ```bash
-cd automations
-python3 -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env               # then put your API keys in .env
+python3 brain.py automation list
+python3 brain.py automation install stripe
 ```
 
-`.env` and `.venv/` are gitignored. Never commit real keys.
+It copies the folder here, creates the metrics it feeds, and tells you which keys to put in `.env`.
 
-## Layout
+## Build your own
 
-Scripts are filed by the department that owns the numbers they pull, matching
-`../departments/`:
+Ask Claude: *"/connect: pull my newsletter subscriber count from Beehiiv"*. It copies `_template/`, writes the script, adds the metric, runs a refresh and checks the number. Rules it follows: standard library only, secrets only from `.env`, read-only API keys where possible.
 
-```
-scripts/
-  example.py              → Output/analytics/company/
-  marketing/
-    meta_ads.py           → Output/analytics/marketing/
-  sales/
-    stripe.py             → Output/analytics/sales/
+## Running
+
+```bash
+python3 brain.py refresh            # every pull
+python3 brain.py refresh stripe     # one automation
 ```
 
-`example.py` finds the repo root by walking up to `CLAUDE.md` and reads its own
-department from its parent folder, so nesting routes output on its own — there
-is nothing to configure. A script sitting directly in `scripts/` is treated as
-company-wide.
-
-## Adding one
-
-Just ask Claude: *"add an automation that pulls my Meta ad spend"* — it
-writes the script, files it under the right department, adds the config, and
-updates this README. Or do it by hand:
-
-1. Copy `scripts/example.py` to `scripts/<department>/<name>.py`.
-2. Replace `fetch()`. Return the metrics under the **same names used in
-   `../company.md`'s metrics table** — that's what lets the dashboard place
-   them with no translation layer in between.
-3. Put anything configurable in `config/` — IDs, thresholds, account names —
-   and anything secret in `.env`.
-4. Add a row to the table below.
-5. Tell Claude it exists, so it gets run during the weekly loop.
-
-## The rules that matter
-
-- **Never fake a number.** If a key is missing or an API fails, print a clear
-  error and exit non-zero. A script that returns plausible-looking garbage is
-  worse than one that crashes.
-- **Read-only by default.** Scripts that pull data can run unattended.
-  Anything that *acts* on the outside world — posting, emailing, charging —
-  gets confirmed by a human every time, never scheduled silently.
-- **Output is scratch.** `../Output/analytics/**/*.json` is a cache, safe to
-  delete. The durable record is `../dashboard.md` (current numbers), the unit's
-  `direction.md` and `experiments.md` (what they meant), and the weekly entry
-  in `../log.md`.
-
-## Scripts
-
-| Script | Department | Needs | Does |
-|---|---|---|---|
-| _none yet_ | | | |
+The console's **Refresh** button does the same, and can run it daily while it's open.

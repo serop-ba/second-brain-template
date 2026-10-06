@@ -1,52 +1,15 @@
 ---
 name: ingest
-description: Ingest a source from raw/ into the second brain — writes or updates a note in wiki/. Triggers on "ingest", "process this source", "add this to the brain", or when a new file appears in raw/.
+description: Turn source material (an article, transcript, call notes, competitor page, pasted text or a file) into notes in the library, updating the brain only where the source changes it. Triggers on "ingest", "file this", "here's a transcript", or a path to a document to learn from.
 ---
 
 # Ingest
 
-Turn a file in `raw/` into knowledge. Read `../../../CLAUDE.md` first if it
-isn't already in context — it owns the conventions; this skill only sequences
-them.
+1. **Get it in.** If it's a file: `python3 brain.py doc import PATH --kind source --dept <slug> --tags a,b`. If it's pasted text: `doc add "Title" --kind source --body -` (stdin) or `--file`. Check `doc list --kind source` for sources not yet ingested (`not ingested`).
+2. **Read it** with `doc get SLUG`.
+3. **Discuss the takeaways first**, in a few lines, unless the user said to batch. Name what is new, what contradicts something already in the brain (`search WORDS` to check), and what you'd ignore.
+4. **Write notes**: `doc add "..." --kind note --dept ... --tags ... --body "..."` or `doc update SLUG --body ...` for an existing one. Link related notes with `[[slug]]` in the body. If the source contradicts a claim, update that document and write the revision inline with the date; don't overwrite silently.
+5. **Update the rest only if the source actually changes it**: a company fact, a bet's status, a metric value, a goal.
+6. **Close the loop**: `doc ingest SLUG` (marks the source processed; sources are otherwise never edited), then `log add --type ingest --title "..." --body "what was filed, what changed"`.
 
-## Pick the target
-
-If the user named a file, use it. Otherwise find unprocessed sources:
-
-```bash
-cd "$(git rev-parse --show-toplevel)"
-grep -L "^ingested: true" raw/*.md
-```
-
-Several unprocessed? List them and ask which — don't batch unless told to.
-
-## Ingest it
-
-1. Read it. Tell the user the 3–5 takeaways in a few lines and say which ones
-   you'd file. Wait for a nod, unless they said to batch.
-2. Write or update `wiki/<slug>.md` with frontmatter:
-   `title`, `type: note`, `created`, `updated`, `tags`, plus `raw:` and
-   `origin:` for a source page. Body: what it says, what it means for this
-   business, links to related notes.
-3. Cross-link **both ways** — add a link back from every note you reference.
-   `wiki/` is flat, so links are plain `[name](name.md)`.
-4. Contradicts something already filed? Note it inline ("as of X this was
-   true; Y revises it to Z") — never overwrite silently — and flag it in step 6.
-5. If it actually changes `company.md` or `goals.md`, update those too. Most
-   sources don't. Don't force it.
-6. Add `ingested: true` and `ingested_date: YYYY-MM-DD` to the raw file's
-   frontmatter. This is the only permitted edit to `raw/`.
-7. Append to `log.md`:
-   `## [YYYY-MM-DD] ingest | <Title>` + one paragraph on what was touched and
-   any contradiction found.
-
-## Don't
-
-- Don't edit `raw/` beyond the two `ingested*` keys.
-- Don't create folders under `wiki/` — it's flat by design.
-- Don't fabricate. If the source is thin, say so rather than padding the note.
-
-## After
-
-One or two lines: what was created, what it linked to, and — mentor mode —
-whether it's actually worth acting on or just interesting.
+Video or social-media sources that are really **ideas to react to** rather than knowledge: file one note per idea with the angle, the hook and what to show, tagged `idea`, instead of summarising the video.

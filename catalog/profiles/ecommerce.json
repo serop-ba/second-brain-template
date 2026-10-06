@@ -1,0 +1,19 @@
+{
+  "label": "E-commerce / product business",
+  "description": "You sell physical or digital products online: traffic, conversion, order value, repeat purchases.",
+  "departments": [
+    {"name": "Marketing", "owns": "Traffic and acquisition: ads, social, email, influencers", "intro": "Bring buyers at a cost the margin can carry."},
+    {"name": "Operations", "owns": "Inventory, fulfilment, suppliers, shipping", "intro": "Ship the right thing on time at a good cost."},
+    {"name": "Customer", "owns": "Support, reviews, returns and retention", "intro": "Make first-time buyers into repeat buyers."},
+    {"name": "Finance", "owns": "Revenue, margin, cash and pricing", "intro": "Know your margin after ads, returns and shipping."}
+  ],
+  "metrics": [
+    {"key": "sessions", "name": "Weekly sessions", "department": "marketing", "unit": "sessions", "definition": "Store visits per week."},
+    {"key": "conversion_rate", "name": "Conversion rate", "department": "marketing", "unit": "%", "definition": "Orders divided by sessions."},
+    {"key": "ad_spend", "name": "Ad spend", "department": "marketing", "unit": "", "definition": "Paid acquisition spend this month."},
+    {"key": "orders", "name": "Orders", "department": "operations", "unit": "orders", "definition": "Orders this week."},
+    {"key": "aov", "name": "Average order value", "department": "finance", "unit": "", "definition": "Revenue divided by orders."},
+    {"key": "monthly_revenue", "name": "Monthly revenue", "department": "finance", "unit": "", "definition": "Net sales this month, after refunds."},
+    {"key": "repeat_rate", "name": "Repeat purchase rate", "department": "customer", "unit": "%", "definition": "Share of customers who bought more than once in 90 days."}
+  ]
+}
